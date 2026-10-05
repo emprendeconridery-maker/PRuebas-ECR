@@ -1,5 +1,5 @@
 // Pega aqui la URL de tu Apps Script (termina en /exec). Es publica, no es una contraseña.
-window.TURNOS_API = "PEGA_AQUI_LA_URL_DE_APPS_SCRIPT";
+window.TURNOS_API = "https://script.google.com/macros/s/AKfycbynrNQCMTBbdYDVMwNLKjFI7AH4zB1pWLVD6PPHooSbUVdn8RDU5-LUMnB2q_AAW5tB/exec";
 window.SEDES = {
   "Capital District (VE)": ["FERRETOTAL", "San Bernardino"],
   "Carabobo (VE)": ["ATC Valencia"],
