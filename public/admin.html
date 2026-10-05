@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ridery · Panel del coordinador</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗂️</text></svg>">
+<link rel="stylesheet" href="/turnos.css">
+<script src="/config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+.caja{max-width:52rem}
+.area{display:grid;grid-template-columns:2.6rem 1fr 7rem;gap:.7rem;align-items:end;padding:.9rem 0;border-bottom:1px solid var(--linea)}
+.area .letra{width:2.6rem;height:2.6rem;border-radius:.6rem;display:grid;place-items:center;font:700 1.1rem var(--fd);color:#fff;background:var(--c)}
+.area label{margin:0 0 .3rem}
+.resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-top:1rem}
+.res{background:var(--lienzo);border-radius:.8rem;padding:.8rem}
+.res b{display:block;font:700 1.6rem var(--fd)}
+.res span{font-size:.82rem;color:var(--txt-2)}
+.qr{display:flex;gap:1.4rem;align-items:center;flex-wrap:wrap;margin-top:.6rem}
+#qr{background:#fff;padding:.8rem;border-radius:.8rem;border:1px solid var(--linea)}
+.link{font-size:.85rem;word-break:break-all;color:var(--azul)}
+@media print{.top,.no-imp{display:none!important}body{background:#fff}.tarjeta{box-shadow:none}}
+</style>
+</head>
+<body>
+<header class="top"><img src="/logo.png" alt="Ridery"><div class="sede">Panel del coordinador<b id="hSede">—</b></div></header>
+<main class="caja">
+  <section class="tarjeta" id="login" style="max-width:30rem;margin:auto">
+    <h1>Entrar como coordinador</h1>
+    <label for="lSede">Sede</label><select id="lSede"></select>
+    <label for="lPin">PIN de coordinador</label><input id="lPin" type="password" inputmode="numeric">
+    <p class="error" id="eLogin"></p>
+    <button class="btn ancho" id="bEntrar">Entrar</button>
+  </section>
+
+  <div class="oculto" id="panel">
+    <section class="tarjeta no-imp">
+      <h1>¿Quién atiende cada área hoy?</h1>
+      <p class="sub">El nombre aparecerá en la TV cuando llamen un turno (ej. "M-05 → Pedro").</p>
+      <div id="areas"></div>
+      <p class="error" id="eGuardar"></p>
+      <button class="btn verde ancho" id="bGuardar">Guardar asignaciones</button>
+    </section>
+
+    <section class="tarjeta no-imp" style="margin-top:1rem">
+      <h2>Hoy en esta sede</h2>
+      <div class="resumen" id="resumen"></div>
+    </section>
+
+    <section class="tarjeta" style="margin-top:1rem">
+      <h2>QR para la entrada</h2>
+      <div class="qr"><div id="qr"></div><div><p class="sub" style="margin:0 0 .5rem">Escanea para solicitar atención en <b id="qSede"></b></p>
+        <a class="link" id="qLink" target="_blank"></a><br><br><button class="btn chico no-imp" onclick="print()">Imprimir QR</button></div></div>
+    </section>
+  </div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const COLOR={S:"var(--azul)",A:"var(--mag)",M:"var(--teal-osc)"};let S=null;
+$("#lSede").innerHTML=Object.values(SEDES).flat().map(s=>`<option>${s}</option>`).join("");
+try{const g=localStorage.getItem("admin_sede");if(g)$("#lSede").value=g}catch(e){}
+function pintar(r){
+  $("#areas").innerHTML=Object.keys(COLAS).map(k=>{const a=r.asesores[k]||{};return `<div class="area" style="--c:${COLOR[k]}"><span class="letra">${k}</span>
+    <div><label for="n${k}">${COLAS[k]}: nombre</label><input id="n${k}" value="${esc(a.nombre)}" placeholder="Ej. Pedro"></div>
+    <div><label for="p${k}">Puesto</label><input id="p${k}" value="${esc(a.puesto)}" placeholder="Ej. 2"></div></div>`}).join("");
+  $("#resumen").innerHTML=Object.keys(COLAS).map(k=>{const x=r.resumen[k];return `<div class="res"><span>${COLAS[k]}</span><b>${x.total}</b>
+    <span>${x.espera} en espera · ${x.promedio_min==null?"sin atenciones aún":"espera prom. "+x.promedio_min+" min"}</span></div>`}).join("");
+}
+$("#bEntrar").onclick=async()=>{
+  S={sede:$("#lSede").value,pin:$("#lPin").value.trim()};$("#eLogin").textContent="";
+  try{const r=await api("admin_ver",S);try{localStorage.setItem("admin_sede",S.sede)}catch(e){}
+    $("#hSede").textContent=S.sede;$("#qSede").textContent=S.sede;pintar(r);$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");
+    const url=location.origin+"/turno.html?sede="+encodeURIComponent(S.sede);$("#qLink").href=url;$("#qLink").textContent=url;
+    $("#qr").innerHTML="";new QRCode($("#qr"),{text:url,width:200,height:200,colorDark:"#152B49",colorLight:"#ffffff"})}
+  catch(e){$("#eLogin").textContent=/PIN/.test(e.message)?"PIN incorrecto.":"Sin conexión: "+e.message}
+};
+$("#bGuardar").onclick=async()=>{
+  const asignaciones={};Object.keys(COLAS).forEach(k=>asignaciones[k]={nombre:$("#n"+k).value.trim(),puesto:$("#p"+k).value.trim()});
+  try{await api("admin_guardar",Object.assign({asignaciones},S));const r=await api("admin_ver",S);pintar(r);$("#eGuardar").style.color="var(--teal-osc)";$("#eGuardar").textContent="Guardado."}
+  catch(e){$("#eGuardar").style.color="";$("#eGuardar").textContent=e.message}
+};
+$("#lPin").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bEntrar").click()});
+</script>
+</body>
+</html>
