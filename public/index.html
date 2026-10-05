@@ -511,7 +511,7 @@ async function iniciar(){
   if(ADMIN())$(".aviso").innerHTML=ICO+`En rojo: más de ${LIM.calidad} min en control de calidad o listos para retirar, y más de ${LIM.mantenimiento/60} h en mantenimiento.`;
   const S=$("#sede");S.innerHTML=GENERAL()?"Vista general <small>Todas las sedes</small>":`${esc(SEL.deposito)} <small>${esc(SEL.ubicacion)}</small>`;S.hidden=false;S.onclick=()=>location.reload();
   ctx=new (window.AudioContext||window.webkitAudioContext)();salida=ctx.createDynamicsCompressor();salida.threshold.value=-10;salida.knee.value=6;salida.ratio.value=4;salida.attack.value=.003;salida.release.value=.25;
-  const vol=ctx.createGain();vol.gain.value=1.1;salida.connect(vol);vol.connect(ctx.destination);cargarAviso();cargarVoz();cargarVozTurnos();
+  const vol=ctx.createGain();vol.gain.value=1.1;salida.connect(vol);vol.connect(ctx.destination);cargarAviso();cargarVoz();if(TURNOS_ON())cargarVozTurnos();
   const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);
   try{await document.documentElement.requestFullscreen()}catch(e){}
   despierto();$("#inicio").remove();procesar();cargar();programar();

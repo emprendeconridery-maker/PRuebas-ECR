@@ -9,7 +9,8 @@ window.SEDES = {
 window.COLAS = { S: "Soporte", A: "Aspirantes", M: "Mantenimiento" };
 window.api = async function (accion, datos) {
   const r = await fetch(window.TURNOS_API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(Object.assign({ accion }, datos || {})) });
-  const j = await r.json();
+  let j;
+  try { j = await r.json(); } catch (e) { throw new Error("No hay conexión con el sistema de turnos"); }
   if (!j.ok) throw new Error(j.error || "Error");
   return j;
 };
