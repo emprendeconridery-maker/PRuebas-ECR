@@ -76,6 +76,10 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
         <section class="bloque"><h2>Motivos más frecuentes</h2><div class="hbars" id="gMotivos"></div></section>
         <section class="bloque"><h2>Asesores</h2><div id="tAsesores"></div></section>
       </div>
+      <section class="bloque" style="margin-bottom:1rem"><h2 style="display:flex;justify-content:space-between;align-items:center;gap:1rem">Quejas y sugerencias <a class="btn chico" href="/bandeja.html">Abrir bandeja →</a></h2>
+        <div class="kpis" id="qKpis" style="margin-bottom:.8rem"></div>
+        <div class="grid2" style="margin:0"><div><h2 style="font-size:.95rem">Temas</h2><div class="hbars" id="qTemas"></div></div><div><h2 style="font-size:.95rem">Últimos mensajes</h2><div id="qUlt"></div></div></div>
+      </section>
       <section class="bloque" style="margin-bottom:1rem"><h2>Lo que dicen los conductores</h2><div id="tComent"></div></section>
       <div class="grid2">
         <section class="bloque"><h2>Sedes</h2><div id="tSedes"></div></section>
@@ -122,6 +126,13 @@ async function cargar(){
     tabla($("#tAsesores"),[{t:"Asesor",f:x=>esc(x.asesor)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`},{t:"Atención prom.",n:1,f:x=>dur(x.atencion)},{t:"Satisfacción",n:1,f:x=>est(E.por_asesor[x.asesor])}],r.asesores);
     tabla($("#tSedes"),[{t:"Sede",f:x=>esc(x.sede)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`},{t:"Satisfacción",n:1,f:x=>est(E.por_sede[x.sede])}],r.sedes);
     tabla($("#tComent"),[{t:"Fecha",f:x=>x.dia.slice(8)+"/"+x.dia.slice(5,7)},{t:"Turno",f:x=>esc(x.turno)},{t:"Asesor",f:x=>esc(x.asesor||"—")},{t:"Calificación",f:x=>`<span style="color:#F5A623">${"★".repeat(x.calificacion)}</span>`},{t:"Comentario",f:x=>esc(x.comentario)}],E.comentarios);
+    const QK=r.quejas||{total:0,por_tipo:[],por_tema:[],ultimas:[]},tipoN=t=>(QK.por_tipo.find(x=>x.nombre===t)||{}).n||0;
+    $("#qKpis").innerHTML=kpi("Mensajes recibidos",QK.total,`Quejas ${tipoN("Queja")} · Sugerencias ${tipoN("Sugerencia")} · Felicitaciones ${tipoN("Felicitación")}`)+
+      kpi("Quejas abiertas",QK.abiertas||0,"Sin resolver todavía",QK.abiertas?"#F5A623":"var(--teal-osc)")+kpi("Quejas graves",QK.graves||0,"En el período",QK.graves?"var(--rojo)":"var(--teal-osc)")+
+      kpi("Tiempo de resolución",QK.horas_resolucion==null?"—":QK.horas_resolucion+" h","Promedio de quejas resueltas","var(--azul)");
+    const qmx=Math.max(1,...QK.por_tema.map(x=>x.n));
+    $("#qTemas").innerHTML=QK.por_tema.length?QK.por_tema.map(x=>`<div class="hb"><span>${esc(x.nombre)}</span><div class="barra"><i style="width:${x.n/qmx*100}%;background:var(--mag)"></i></div><b>${x.n}</b></div>`).join(""):`<div class="vacio">Sin mensajes</div>`;
+    tabla($("#qUlt"),[{t:"Ref.",f:x=>esc(x.id)},{t:"Tipo",f:x=>esc(x.tipo)+(x.gravedad==="Grave"?' <span class="rojo">· Grave</span>':"")},{t:"Mensaje",f:x=>esc(x.detalle)}],QK.ultimas);
     $("#hAlertas").textContent=`Casos con más de ${L/60} h de espera`;
     tabla($("#tAlertas"),[{t:"Turno",f:x=>`<b style="color:${COL[x.cola]}">${esc(x.turno)}</b>`},{t:"Fecha",f:x=>x.dia.slice(8)+"/"+x.dia.slice(5,7)},{t:"Sede",f:x=>esc(x.sede)},{t:"Asesor",f:x=>esc(x.asesor||"—")},{t:"Espera",n:1,f:x=>`<span class="rojo">${dur(x.espera)}</span>${x.atendido?"":" (sin atender)"}`}],r.alertas);
   }catch(e){if(/PIN/.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent="PIN incorrecto."}else alert("No se pudieron cargar los datos: "+e.message)}

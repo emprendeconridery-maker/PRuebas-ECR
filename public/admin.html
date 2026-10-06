@@ -17,7 +17,7 @@
 .res b{display:block;font:700 1.6rem var(--fd)}
 .res span{font-size:.82rem;color:var(--txt-2)}
 .qr{display:flex;gap:1.4rem;align-items:center;flex-wrap:wrap;margin-top:.6rem}
-#qr{background:#fff;padding:.8rem;border-radius:.8rem;border:1px solid var(--linea)}
+#qr,#qr2{background:#fff;padding:.8rem;border-radius:.8rem;border:1px solid var(--linea)}
 .link{font-size:.85rem;word-break:break-all;color:var(--azul)}
 @media print{.top,.no-imp{display:none!important}body{background:#fff}.tarjeta{box-shadow:none}}
 </style>
@@ -43,7 +43,7 @@
     </section>
 
     <section class="tarjeta no-imp" style="margin-top:1rem">
-      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:1rem">Hoy en esta sede <a class="btn azul chico" href="/dashboard.html">Ver indicadores (KPI) →</a></h2>
+      <h2 style="display:flex;align-items:center;justify-content:space-between;gap:1rem">Hoy en esta sede <span style="display:flex;gap:.5rem;flex-wrap:wrap"><a class="btn azul chico" href="/dashboard.html">Ver indicadores (KPI) →</a><a class="btn chico" href="/bandeja.html">Bandeja de quejas →</a></span></h2>
       <div class="resumen" id="resumen"></div>
     </section>
 
@@ -51,6 +51,8 @@
       <h2>QR para la entrada</h2>
       <div class="qr"><div id="qr"></div><div><p class="sub" style="margin:0 0 .5rem">Escanea para solicitar atención en <b id="qSede"></b></p>
         <a class="link" id="qLink" target="_blank"></a><br><br><button class="btn chico no-imp" onclick="print()">Imprimir QR</button></div></div>
+      <div class="qr" style="margin-top:1.4rem;padding-top:1.2rem;border-top:1px solid var(--linea)"><div id="qr2"></div><div><p class="sub" style="margin:0 0 .5rem"><b>Quejas y sugerencias</b> en <span id="qSede2"></span></p>
+        <a class="link" id="qLink2" target="_blank"></a></div></div>
     </section>
   </div>
 </main>
@@ -72,7 +74,10 @@ $("#bEntrar").onclick=async()=>{
   try{const r=await api("admin_ver",S);try{localStorage.setItem("admin_sede",S.sede)}catch(e){}
     $("#hSede").textContent=S.sede;$("#qSede").textContent=S.sede;pintar(r);$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");
     const url=location.origin+"/turno.html?sede="+encodeURIComponent(S.sede);$("#qLink").href=url;$("#qLink").textContent=url;
-    $("#qr").innerHTML="";new QRCode($("#qr"),{text:url,width:200,height:200,colorDark:"#152B49",colorLight:"#ffffff"})}
+    const url2=location.origin+"/quejas.html?sede="+encodeURIComponent(S.sede);$("#qSede2").textContent=S.sede;$("#qLink2").href=url2;$("#qLink2").textContent=url2;
+    try{$("#qr").innerHTML="";new QRCode($("#qr"),{text:url,width:200,height:200,colorDark:"#152B49",colorLight:"#ffffff"});
+      $("#qr2").innerHTML="";new QRCode($("#qr2"),{text:url2,width:150,height:150,colorDark:"#152B49",colorLight:"#ffffff"})}
+    catch(e){$("#qr").textContent=$("#qr2").textContent="No se pudo dibujar el QR (revisa la conexión)."}}
   catch(e){$("#eLogin").textContent=/PIN/.test(e.message)?"PIN incorrecto.":"Sin conexión: "+e.message}
 };
 $("#bGuardar").onclick=async()=>{

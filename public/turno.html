@@ -91,6 +91,7 @@
     <h2 style="margin-top:1.4rem">Tu solicitud fue recibida</h2>
     <p class="sub">Mantente atento a la pantalla de la sala: te llamaremos por tu número.</p>
     <button class="btn sec" id="bNuevo">Solicitar otro turno</button>
+    <p style="margin-top:1.2rem"><a class="link" id="lQueja" href="/quejas.html" style="color:var(--azul);font-size:.9rem">¿Tienes una queja o sugerencia? Escríbenos</a></p>
   </section>
   <p class="pie">Ridery · Emprende con Ridery</p>
 </main>
@@ -102,7 +103,7 @@ const todas=Object.values(SEDES).flat();let sede=todas.find(s=>s.toLowerCase()==
 function ver(id){document.querySelectorAll("main>section").forEach(s=>s.classList.add("oculto"));$("#"+id).classList.remove("oculto");scrollTo(0,0)}
 function datos(){return{cedula:$("#cedula").value.trim(),nombre:$("#nombre").value.trim(),telefono:$("#telefono").value.trim(),correo:$("#correo").value.trim()}}
 const hoy=()=>new Date().toLocaleDateString("en-CA");
-function mostrarTicket(t){$("#tNum").textContent=t.turno;$("#tCola").textContent=t.colaNombre;$("#tCola").style.setProperty("--c",COLOR[t.cola]);ver("pTicket")}
+function mostrarTicket(t){$("#lQueja").href="/quejas.html?sede="+encodeURIComponent(t.sede);$("#tNum").textContent=t.turno;$("#tCola").textContent=t.colaNombre;$("#tCola").style.setProperty("--c",COLOR[t.cola]);ver("pTicket")}
 
 /* Sede */
 function iniciarSede(){$("#nomSede").textContent=sede;

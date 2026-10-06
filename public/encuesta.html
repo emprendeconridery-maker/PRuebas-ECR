@@ -40,6 +40,7 @@
     <div style="font-size:3rem">🙌</div>
     <h1 style="margin-top:.6rem">¡Gracias por tu respuesta!</h1>
     <p class="sub">La usaremos para mejorar tu próxima visita.</p>
+    <a class="btn sec" id="lQueja" href="/quejas.html">¿Quieres dejarnos una queja o sugerencia?</a>
   </section>
 
   <section class="tarjeta oculto" id="pError"><h1>Enlace no válido</h1><p class="sub">Revisa que hayas abierto el enlace completo del correo o del WhatsApp.</p></section>
@@ -53,7 +54,7 @@ document.querySelectorAll(".estrellas").forEach(g=>{const c=g.dataset.campo;
   g.querySelectorAll("button").forEach(b=>b.onclick=()=>{R[c]=+b.dataset.n;$("#eForm").textContent="";g.querySelectorAll("button").forEach(x=>x.classList.toggle("on",+x.dataset.n<=R[c]))})});
 document.querySelectorAll("#resuelto .opcion").forEach(b=>b.onclick=()=>{R.resuelto=b.dataset.v;$("#eForm").textContent="";document.querySelectorAll("#resuelto .opcion").forEach(x=>x.setAttribute("aria-pressed",x===b))});
 (async()=>{
-  try{const r=await api("encuesta_ver",{id:Q.get("t"),k:Q.get("k")});$("#hTurno").textContent="Turno "+r.turno;
+  try{const r=await api("encuesta_ver",{id:Q.get("t"),k:Q.get("k")});$("#hTurno").textContent="Turno "+r.turno;$("#lQueja").href="/quejas.html?sede="+encodeURIComponent(r.sede);
     if(r.ya)return ver("pGracias");
     $("#hola").textContent="¡Hola"+(r.nombre?" "+r.nombre:"")+"!";if(r.asesor)$("#lAsesor").textContent="3. ¿Cómo te atendió "+r.asesor+"?";ver("pForm")}
   catch(e){ver("pError")}

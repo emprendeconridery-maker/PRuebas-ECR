@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ridery · Bandeja de quejas</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📥</text></svg>">
+<link rel="stylesheet" href="/turnos.css">
+<script src="/config.js"></script>
+<style>
+.caja{max-width:70rem}
+.filtros{display:flex;flex-wrap:wrap;gap:.7rem;align-items:end;background:#fff;border-radius:1rem;box-shadow:var(--sombra);padding:1rem 1.2rem;margin-bottom:1rem}
+.filtros label{margin:0 0 .3rem;font-size:.8rem;color:var(--txt-2)}
+.filtros select{width:auto;padding:.55rem .7rem}
+.resumen{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}
+.chip{background:#fff;border-radius:2rem;box-shadow:var(--sombra);padding:.45rem .9rem;font-size:.9rem}.chip b{font-family:var(--fd)}
+.q{background:#fff;border-radius:.9rem;box-shadow:var(--sombra);padding:1rem 1.1rem;margin-bottom:.8rem;border-left:.3rem solid var(--c,var(--slate))}
+.q.grave{border-left-color:var(--rojo)}
+.cab{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.cab .id{font:700 1.05rem var(--fd)}
+.cab .fecha{margin-left:auto;color:var(--txt-2);font-size:.85rem}
+.pill.t-Queja{background:#FDECEC;color:var(--rojo)}.pill.t-Sugerencia{background:#EEF1FA;color:var(--azul)}.pill.t-Felicitación{background:#E8F5F1;color:var(--teal-osc)}
+.pill.g-Grave{background:var(--rojo);color:#fff}
+.pill.e-Nueva{background:#FFF4DE;color:#9A6200}.pill.e-Resuelta{background:#E8F5F1;color:var(--teal-osc)}
+.det{margin:.6rem 0;white-space:pre-line}
+.meta{font-size:.85rem;color:var(--txt-2)}
+.edit{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--linea)}
+.edit label{margin:0 0 .25rem;font-size:.8rem}
+.edit .full{grid-column:1/-1}
+@media(max-width:700px){.edit{grid-template-columns:1fr}}
+.acc{display:flex;gap:.5rem;flex-wrap:wrap;grid-column:1/-1}
+#modal{position:fixed;inset:0;background:rgba(21,43,73,.45);display:grid;place-items:center;padding:1rem;z-index:5;overflow:auto}
+#modal .tarjeta{max-width:34rem;width:100%}
+.vacio{color:var(--txt-2);text-align:center;padding:2rem;background:#fff;border-radius:.9rem}
+</style>
+</head>
+<body>
+<header class="top"><img src="/logo.png" alt="Ridery"><div class="sede">Bandeja de quejas y sugerencias<b>Solo coordinador</b></div></header>
+<main class="caja">
+  <section class="tarjeta" id="login" style="max-width:30rem;margin:auto">
+    <h1>Bandeja de quejas</h1>
+    <label for="lPin">PIN de coordinador</label><input id="lPin" type="password" inputmode="numeric">
+    <p class="error" id="eLogin"></p><button class="btn ancho" id="bEntrar">Entrar</button>
+  </section>
+  <div class="oculto" id="panel">
+    <div class="filtros">
+      <div><label for="fSede">Sede</label><select id="fSede"><option value="*">Todas las sedes</option></select></div>
+      <div><label for="fEstado">Estado</label><select id="fEstado"><option value="abiertas">Abiertas (nuevas y en revisión)</option><option value="*">Todas</option><option value="Nueva">Nuevas</option><option value="En revision">En revisión</option><option value="Resuelta">Resueltas</option></select></div>
+      <div><label for="fTipo">Tipo</label><select id="fTipo"><option value="*">Todos</option><option>Queja</option><option>Sugerencia</option><option>Felicitación</option></select></div>
+      <button class="btn verde chico" id="bNueva" style="margin-left:auto">+ Registrar queja recibida por otro canal</button>
+      <a class="btn sec chico" href="/dashboard.html">Indicadores</a><a class="btn sec chico" href="/admin.html">Panel</a>
+    </div>
+    <div class="resumen" id="resumen"></div>
+    <div id="lista"></div>
+  </div>
+</main>
+<div id="modal" class="oculto"><div class="tarjeta">
+  <h2>Registrar queja recibida por otro canal</h2>
+  <div class="fila2"><div><label for="mSede">Sede</label><select id="mSede"></select></div>
+    <div><label for="mCanal">Canal</label><select id="mCanal"><option>Teléfono</option><option>WhatsApp</option><option>En persona</option><option>Correo</option><option>Otro</option></select></div></div>
+  <div class="fila2"><div><label for="mTipo">Tipo</label><select id="mTipo"><option>Queja</option><option>Sugerencia</option><option>Felicitación</option></select></div>
+    <div><label for="mTema">Tema</label><select id="mTema"><option>Atención en la sede</option><option>Tiempo de espera</option><option>Vehículo</option><option>App</option><option>Pagos y cuotas</option><option>Otro</option></select></div></div>
+  <label for="mDetalle">Detalle</label><textarea id="mDetalle"></textarea>
+  <div class="fila2"><div><label for="mNombre">Nombre</label><input id="mNombre"></div><div><label for="mCorreo">Correo</label><input id="mCorreo" type="email"></div></div>
+  <div class="fila2"><div><label for="mCedula">Cédula</label><input id="mCedula"></div><div><label for="mPlaca">Placa</label><input id="mPlaca"></div></div>
+  <p class="error" id="eModal"></p>
+  <button class="btn ancho" id="mGuardar">Registrar</button><button class="btn sec ancho" id="mCerrar" style="margin-top:.5rem">Cancelar</button>
+</div></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let PIN="",todas=[];
+const sedes=Object.values(SEDES).flat();$("#fSede").innerHTML+=sedes.map(s=>`<option>${s}</option>`).join("");$("#mSede").innerHTML=sedes.map(s=>`<option>${s}</option>`).join("");
+const fecha=t=>t?new Date(t).toLocaleString("es-VE",{day:"2-digit",month:"2-digit",hour:"numeric",minute:"2-digit"}):"";
+async function cargar(){
+  try{const r=await api("queja_lista",{pin:PIN,sede:$("#fSede").value});todas=r.quejas;pintar()}
+  catch(e){if(/PIN/.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent="PIN incorrecto."}else $("#lista").innerHTML=`<div class="vacio">Sin conexión: ${esc(e.message)}</div>`}
+}
+function pintar(){
+  const fe=$("#fEstado").value,ft=$("#fTipo").value;
+  const qs=todas.filter(q=>(fe==="*"||(fe==="abiertas"?q.estado!=="Resuelta":q.estado===fe))&&(ft==="*"||q.tipo===ft));
+  const ab=todas.filter(q=>q.tipo==="Queja"&&q.estado!=="Resuelta");
+  $("#resumen").innerHTML=`<span class="chip">Abiertas <b>${ab.length}</b></span><span class="chip" style="color:var(--rojo)">Graves abiertas <b>${ab.filter(q=>q.gravedad==="Grave").length}</b></span><span class="chip">Nuevas sin revisar <b>${todas.filter(q=>q.estado==="Nueva").length}</b></span>`;
+  $("#lista").innerHTML=qs.map(q=>`<article class="q${q.gravedad==="Grave"?" grave":""}" data-id="${esc(q.id)}">
+    <div class="cab"><span class="id">${esc(q.id)}</span><span class="pill t-${esc(q.tipo)}">${esc(q.tipo)}</span>${q.gravedad?`<span class="pill g-${esc(q.gravedad)}">${esc(q.gravedad)}</span>`:""}
+      <span class="pill e-${esc(q.estado.replace(" ",""))}">${q.estado==="En revision"?"En revisión":esc(q.estado)}</span><span class="pill">${esc(q.tema)}</span><span class="fecha">${esc(q.sede)} · ${fecha(q.creado)}</span></div>
+    <div class="det">${esc(q.detalle)}</div>
+    <div class="meta">${q.anonimo?"Anónima":[q.nombre,q.cedula&&"C.I. "+q.cedula,q.placa&&"Placa "+q.placa,q.correo].filter(Boolean).map(esc).join(" · ")||"Sin datos de contacto"} · ${esc(q.origen)}${q.canal?" ("+esc(q.canal)+")":""}${q.respuesta_enviada?" · ✉️ Respuesta enviada "+fecha(q.respuesta_enviada):""}</div>
+    ${q.tipo==="Felicitación"?"":`<div class="edit">
+      <div><label>Gravedad</label><select data-k="gravedad"><option value="">—</option><option ${q.gravedad==="Leve"?"selected":""}>Leve</option><option ${q.gravedad==="Grave"?"selected":""}>Grave</option></select></div>
+      <div><label>Estado</label><select data-k="estado"><option ${q.estado==="Nueva"?"selected":""}>Nueva</option><option value="En revision" ${q.estado==="En revision"?"selected":""}>En revisión</option><option ${q.estado==="Resuelta"?"selected":""}>Resuelta</option></select></div>
+      <div><label>Responsable</label><input data-k="responsable" value="${esc(q.responsable)}" placeholder="¿Quién la atiende?"></div>
+      <div class="full"><label>Respuesta / acciones tomadas</label><textarea data-k="respuesta" placeholder="Qué se hizo o qué se le responde al conductor">${esc(q.respuesta)}</textarea></div>
+      <div class="acc"><button class="btn chico" data-g="0">Guardar</button>${q.correo?`<button class="btn azul chico" data-g="1">Guardar y enviar respuesta por correo</button>`:""}<span class="error" data-msg></span></div></div>`}
+  </article>`).join("")||`<div class="vacio">No hay mensajes con estos filtros</div>`;
+}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-g]");if(!b)return;const art=b.closest("[data-id]"),d={pin:PIN,id:art.dataset.id,enviar:b.dataset.g==="1"};
+  art.querySelectorAll("[data-k]").forEach(x=>d[x.dataset.k]=x.value);
+  if(d.enviar&&!d.respuesta.trim())return art.querySelector("[data-msg]").textContent="Escribe la respuesta antes de enviarla.";
+  if(d.enviar&&!confirm("¿Enviar esta respuesta al correo del conductor?"))return;
+  b.disabled=true;try{const r=await api("queja_actualizar",d);const i=todas.findIndex(q=>q.id===d.id);todas[i]=r.queja;pintar()}catch(err){art.querySelector("[data-msg]").textContent=err.message;b.disabled=false}
+});
+["#fEstado","#fTipo"].forEach(s=>$(s).onchange=pintar);$("#fSede").onchange=cargar;
+$("#bNueva").onclick=()=>{$("#mSede").value=$("#fSede").value!=="*"?$("#fSede").value:sedes[0];$("#eModal").textContent="";$("#modal").classList.remove("oculto")};
+$("#mCerrar").onclick=()=>$("#modal").classList.add("oculto");
+$("#mGuardar").onclick=async()=>{
+  const d={pin:PIN,sede:$("#mSede").value,canal:$("#mCanal").value,tipo:$("#mTipo").value,tema:$("#mTema").value,detalle:$("#mDetalle").value.trim(),nombre:$("#mNombre").value.trim(),correo:$("#mCorreo").value.trim(),cedula:$("#mCedula").value.trim(),placa:$("#mPlaca").value.trim()};
+  try{await api("queja_crear",d);$("#modal").classList.add("oculto");["#mDetalle","#mNombre","#mCorreo","#mCedula","#mPlaca"].forEach(s=>$(s).value="");await cargar()}catch(e){$("#eModal").textContent=e.message}
+};
+$("#bEntrar").onclick=async()=>{PIN=$("#lPin").value.trim();$("#eLogin").textContent="";$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");await cargar()};
+$("#lPin").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bEntrar").click()});
+</script>
+</body>
+</html>

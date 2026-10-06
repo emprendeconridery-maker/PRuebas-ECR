@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ridery · Quejas y sugerencias</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<link rel="stylesheet" href="/turnos.css">
+<script src="/config.js"></script>
+<style>
+.tres{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.tres .opcion{flex-direction:column;justify-content:center;text-align:center;padding:.9rem .4rem;gap:.3rem}
+.tres .opcion i{font-style:normal;font-size:1.5rem}
+.check{display:flex;gap:.6rem;align-items:center;font-weight:600;margin-top:1.2rem;cursor:pointer}
+.check input{width:1.2rem;height:1.2rem}
+.ref{font:700 1.8rem var(--fd);color:var(--navy);margin:.6rem 0}
+</style>
+</head>
+<body>
+<header class="top"><img src="/logo.png" alt="Ridery"><div class="sede">Quejas y sugerencias<b id="nomSede">—</b></div></header>
+<main class="caja">
+  <section class="tarjeta" id="pForm">
+    <h1>Queremos escucharte</h1>
+    <p class="sub">Cuéntanos qué pasó o cómo podemos mejorar. Lo leerá el coordinador de la sede.</p>
+    <div id="bSede" class="oculto"><label for="sede">Sede</label><select id="sede"></select></div>
+    <label>¿Qué nos quieres dejar?</label>
+    <div class="tres" id="tipo">
+      <button class="opcion" data-v="Queja"><i>😟</i><b>Queja</b></button>
+      <button class="opcion" data-v="Sugerencia"><i>💡</i><b>Sugerencia</b></button>
+      <button class="opcion" data-v="Felicitación"><i>👏</i><b>Felicitación</b></button>
+    </div>
+    <label for="tema">Tema</label>
+    <select id="tema"><option value="">Elige un tema</option><option>Atención en la sede</option><option>Tiempo de espera</option><option value="Vehículo">Vehículo (limpieza, aire, ruidos, fallas)</option><option>App</option><option>Pagos y cuotas</option><option>Otro</option></select>
+    <label for="detalle">Cuéntanos</label>
+    <textarea id="detalle" placeholder="Describe lo que pasó o tu idea" style="min-height:7rem"></textarea>
+    <label class="check"><input type="checkbox" id="anonimo"> Enviar de forma anónima</label>
+    <div id="datos">
+      <p class="sub" style="margin:.8rem 0 0">Si nos dejas tus datos, podremos responderte.</p>
+      <label for="nombre">Nombre <small>(opcional)</small></label><input id="nombre" autocomplete="name">
+      <div class="fila2"><div><label for="cedula">Cédula <small>(opcional)</small></label><input id="cedula" inputmode="numeric"></div>
+        <div><label for="placa">Placa <small>(opcional)</small></label><input id="placa" style="text-transform:uppercase"></div></div>
+      <label for="correo">Correo <small>(para responderte)</small></label><input id="correo" type="email" autocomplete="email">
+    </div>
+    <p class="error" id="eForm"></p>
+    <button class="btn ancho" id="bEnviar">Enviar</button>
+  </section>
+  <section class="tarjeta ticket oculto" id="pGracias">
+    <div style="font-size:3rem">🙏</div>
+    <h1 style="margin-top:.6rem">¡Gracias por escribirnos!</h1>
+    <p class="sub" id="gTxt">Tu mensaje ya llegó al coordinador de la sede.</p>
+    <p class="sub" style="margin:0">Tu número de referencia es</p><div class="ref" id="gRef">—</div>
+    <button class="btn sec" id="bOtra">Enviar otra</button>
+  </section>
+  <p class="pie">Ridery · Emprende con Ridery</p>
+</main>
+<script>
+const $=s=>document.querySelector(s),Q=new URLSearchParams(location.search);let tipo="";
+const todas=Object.values(SEDES).flat(),sede=todas.find(s=>s.toLowerCase()===(Q.get("sede")||"").toLowerCase());
+$("#sede").innerHTML=`<option value="">Elige la sede</option>`+todas.map(s=>`<option>${s}</option>`).join("");
+if(sede){$("#nomSede").textContent=sede;$("#sede").value=sede}else{$("#bSede").classList.remove("oculto");$("#nomSede").textContent="Ridery"}
+try{const p=JSON.parse(localStorage.getItem("persona")||"null");if(p){$("#nombre").value=p.nombre||"";$("#cedula").value=p.cedula||"";$("#correo").value=p.correo||""}}catch(e){}
+document.querySelectorAll("#tipo .opcion").forEach(b=>b.onclick=()=>{tipo=b.dataset.v;document.querySelectorAll("#tipo .opcion").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#eForm").textContent=""});
+$("#anonimo").onchange=()=>$("#datos").classList.toggle("oculto",$("#anonimo").checked);
+$("#bEnviar").onclick=async()=>{
+  const d={sede:$("#sede").value,tipo,tema:$("#tema").value,detalle:$("#detalle").value.trim(),anonimo:$("#anonimo").checked,
+    nombre:$("#nombre").value.trim(),cedula:$("#cedula").value.trim(),placa:$("#placa").value.trim().toUpperCase(),correo:$("#correo").value.trim()};
+  const err=m=>$("#eForm").textContent=m;
+  if(!d.sede)return err("Elige la sede.");if(!d.tipo)return err("Elige si es una queja, sugerencia o felicitación.");if(!d.tema)return err("Elige el tema.");
+  if(d.detalle.length<10)return err("Cuéntanos un poco más (mínimo 10 caracteres).");
+  if(!d.anonimo&&d.correo&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.correo))return err("Revisa el correo.");
+  const b=$("#bEnviar");b.disabled=true;b.textContent="Enviando…";err("");
+  try{const r=await api("queja_crear",d);$("#gRef").textContent=r.id;
+    $("#gTxt").textContent=d.tipo==="Felicitación"?"Se la haremos llegar al equipo. ¡Gracias por reconocer su trabajo!":d.anonimo||!d.correo?"Tu mensaje ya llegó al coordinador de la sede.":"Tu mensaje ya llegó al coordinador. Te responderemos a tu correo.";
+    $("#pForm").classList.add("oculto");$("#pGracias").classList.remove("oculto");scrollTo(0,0)}
+  catch(e){err("No pudimos enviarlo. Intenta de nuevo. ("+e.message+")")}
+  finally{b.disabled=false;b.textContent="Enviar"}
+};
+$("#bOtra").onclick=()=>{$("#detalle").value="";$("#tema").value="";tipo="";document.querySelectorAll("#tipo .opcion").forEach(x=>x.setAttribute("aria-pressed",false));$("#pGracias").classList.add("oculto");$("#pForm").classList.remove("oculto")};
+</script>
+</body>
+</html>
