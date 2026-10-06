@@ -5,10 +5,12 @@
 <title>Ridery · Solicitar atención</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎫</text></svg>">
 <link rel="stylesheet" href="/turnos.css">
+<style>.barra-prog{height:4px;background:var(--linea)}.barra-prog i{display:block;height:100%;width:25%;background:linear-gradient(90deg,var(--teal),var(--teal-osc));transition:width .4s cubic-bezier(.2,.8,.2,1);border-radius:0 2px 2px 0}</style>
 <script src="/config.js"></script>
 </head>
 <body>
 <header class="top"><a href="/portal.html" title="Ir al portal"><img src="/logo.png" alt="Ridery"></a><div class="sede">Sede<b id="nomSede">—</b></div></header>
+<div class="barra-prog"><i id="prog"></i></div>
 
 <main class="caja">
   <!-- 0. Sede (solo si el QR no la trae) -->
@@ -100,7 +102,8 @@
 const $=s=>document.querySelector(s),Q=new URLSearchParams(location.search);
 const COLOR={S:"var(--azul)",A:"var(--mag)",M:"var(--teal-osc)"};
 const todas=Object.values(SEDES).flat();let sede=todas.find(s=>s.toLowerCase()===(Q.get("sede")||"").toLowerCase())||null,cola=null;
-function ver(id){document.querySelectorAll("main>section").forEach(s=>s.classList.add("oculto"));$("#"+id).classList.remove("oculto");scrollTo(0,0)}
+const PASO={pSede:12,pDatos:30,pArea:55,pS:80,pA:80,pM:80,pTicket:100};
+function ver(id){document.querySelectorAll("main>section").forEach(s=>s.classList.add("oculto"));$("#"+id).classList.remove("oculto");scrollTo(0,0);if($("#prog"))$("#prog").style.width=(PASO[id]||25)+"%"}
 function datos(){return{cedula:$("#cedula").value.trim(),nombre:$("#nombre").value.trim(),telefono:$("#telefono").value.trim(),correo:$("#correo").value.trim()}}
 const hoy=()=>new Date().toLocaleDateString("en-CA");
 function mostrarTicket(t){$("#lQueja").href="/quejas.html?sede="+encodeURIComponent(t.sede);$("#tNum").textContent=t.turno;$("#tCola").textContent=t.colaNombre;$("#tCola").style.setProperty("--c",COLOR[t.cola]);ver("pTicket")}

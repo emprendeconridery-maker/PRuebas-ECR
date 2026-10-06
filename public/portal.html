@@ -92,7 +92,7 @@ footer{text-align:center;color:var(--txt-2);font-size:.82rem;padding:1rem 1rem 2
 <script>
 const $=s=>document.querySelector(s);
 const sedes=Object.values(SEDES).flat();
-$("#sede").innerHTML=sedes.map(s=>`<option>${s}</option>`).join("");
+$("#sede").innerHTML=`<option value="*">Todas las sedes</option>`+sedes.map(s=>`<option>${s}</option>`).join("");
 try{const g=localStorage.getItem("portal_sede");if(g&&sedes.includes(g))$("#sede").value=g}catch(e){}
 function reloj(){const d=new Date(),h=d.getHours();
   $("#hora").textContent=d.toLocaleTimeString("es-VE",{hour:"numeric",minute:"2-digit"});
@@ -101,13 +101,14 @@ function reloj(){const d=new Date(),h=d.getHours();
 reloj();setInterval(reloj,30000);
 async function estado(){
   if(!window.TURNOS_API||!/^https?:\/\//.test(TURNOS_API))return;
-  try{const r=await fetch(TURNOS_API+"?accion=tv&sede="+encodeURIComponent($("#sede").value));const d=await r.json();if(!d.ok)return;
+  const sede=$("#sede").value;
+  try{const r=await fetch(TURNOS_API+"?accion=tv&sede="+encodeURIComponent(sede==="*"?"":sede));const d=await r.json();if(!d.ok)return;
     const e=d.espera||{},t=(e.S||0)+(e.A||0)+(e.M||0);
-    $("#eTxt").textContent=t?`${t} en espera ahora · S ${e.S||0} · A ${e.A||0} · M ${e.M||0}`:"Sin conductores en espera";$("#estado").classList.remove("oculto")}catch(e){}
+    $("#eTxt").textContent=(sede==="*"?"Todas las sedes · ":"")+(t?`${t} en espera ahora · S ${e.S||0} · A ${e.A||0} · M ${e.M||0}`:"Sin conductores en espera");$("#estado").classList.remove("oculto")}catch(e){}
 }
 $("#sede").onchange=()=>{try{localStorage.setItem("portal_sede",$("#sede").value)}catch(e){};$("#estado").classList.add("oculto");estado()};
 estado();setInterval(()=>{if(!document.hidden)estado()},60000);
-document.querySelectorAll("[data-ir]").forEach(a=>a.onclick=()=>{location.href="/"+a.dataset.ir+".html?sede="+encodeURIComponent($("#sede").value)});
+document.querySelectorAll("[data-ir]").forEach(a=>a.onclick=()=>{const s=$("#sede").value;if(s==="*"){$("#sede").focus();$("#sede").style.boxShadow="0 0 0 3px rgba(227,21,116,.3)";setTimeout(()=>$("#sede").style.boxShadow="",1500);return}location.href="/"+a.dataset.ir+".html?sede="+encodeURIComponent(s)});
 $("#bTV").onclick=()=>{let c="";try{c=localStorage.getItem("clave_tv")||""}catch(e){}$("#clave").value=c;$("#modal").classList.remove("oculto");$("#clave").focus()};
 $("#bCerrar").onclick=()=>$("#modal").classList.add("oculto");
 $("#bIrTV").onclick=()=>{const c=$("#clave").value.trim();if(!c)return;try{localStorage.setItem("clave_tv",c)}catch(e){}location.href="/?clave="+encodeURIComponent(c)};

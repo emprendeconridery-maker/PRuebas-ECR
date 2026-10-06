@@ -135,7 +135,7 @@ async function cargar(){
     tabla($("#qUlt"),[{t:"Ref.",f:x=>esc(x.id)},{t:"Tipo",f:x=>esc(x.tipo)+(x.gravedad==="Grave"?' <span class="rojo">· Grave</span>':"")},{t:"Mensaje",f:x=>esc(x.detalle)}],QK.ultimas);
     $("#hAlertas").textContent=`Casos con más de ${L/60} h de espera`;
     tabla($("#tAlertas"),[{t:"Turno",f:x=>`<b style="color:${COL[x.cola]}">${esc(x.turno)}</b>`},{t:"Fecha",f:x=>x.dia.slice(8)+"/"+x.dia.slice(5,7)},{t:"Sede",f:x=>esc(x.sede)},{t:"Asesor",f:x=>esc(x.asesor||"—")},{t:"Espera",n:1,f:x=>`<span class="rojo">${dur(x.espera)}</span>${x.atendido?"":" (sin atender)"}`}],r.alertas);
-  }catch(e){if(/PIN/.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent="PIN incorrecto."}else alert("No se pudieron cargar los datos: "+e.message)}
+  }catch(e){if(/PIN|intentos/i.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent=/intentos/i.test(e.message)?e.message:"PIN incorrecto."}else alert("No se pudieron cargar los datos: "+e.message)}
   finally{$("#contenido").classList.remove("cargando")}
 }
 document.querySelectorAll("#periodos button").forEach(b=>b.onclick=()=>{periodo(b.dataset.p);cargar()});

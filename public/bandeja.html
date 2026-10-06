@@ -73,7 +73,7 @@ const sedes=Object.values(SEDES).flat();$("#fSede").innerHTML+=sedes.map(s=>`<op
 const fecha=t=>t?new Date(t).toLocaleString("es-VE",{day:"2-digit",month:"2-digit",hour:"numeric",minute:"2-digit"}):"";
 async function cargar(){
   try{const r=await api("queja_lista",{pin:PIN,sede:$("#fSede").value});todas=r.quejas;pintar()}
-  catch(e){if(/PIN/.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent="PIN incorrecto."}else $("#lista").innerHTML=`<div class="vacio">Sin conexión: ${esc(e.message)}</div>`}
+  catch(e){if(/PIN|intentos/i.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent=/intentos/i.test(e.message)?e.message:"PIN incorrecto."}else $("#lista").innerHTML=`<div class="vacio">Sin conexión: ${esc(e.message)}</div>`}
 }
 function pintar(){
   const fe=$("#fEstado").value,ft=$("#fTipo").value;

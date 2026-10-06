@@ -73,7 +73,7 @@ async function cargar(){
   // no redibujar mientras el asesor usa "Derivar a..." (se le cerraria la lista)
   if(document.activeElement&&document.activeElement.matches("select[data-derivar]"))return;
   try{datos=await api("lista",{pin:S.pin,sede:S.sede});desfase=Date.now()-datos.ahora;pintar();$("#pAct").textContent="Actualizado "+hora(Date.now())}
-  catch(e){if(/PIN/.test(e.message)){salir();$("#eLogin").textContent="PIN incorrecto.";}else $("#pAct").textContent="Sin conexión, reintentando…"}
+  catch(e){if(/PIN|intentos/i.test(e.message)){salir();$("#eLogin").textContent=e.message;}else $("#pAct").textContent="Sin conexión, reintentando…"}
 }
 function tarjeta(t){
   const esperaMin=min(Date.now()-desfase-t.creado),tarde=t.estado==="en espera"&&esperaMin>=30;
