@@ -26,6 +26,8 @@
 .acc{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.6rem}
 .acc select{width:auto;padding:.45rem .6rem;font-size:.88rem}
 .vacio{color:var(--txt-2);text-align:center;padding:2rem 1rem;background:#fff;border-radius:.9rem}
+#modal{position:fixed;inset:0;background:rgba(21,43,73,.45);display:grid;place-items:center;padding:1rem;z-index:5}
+#modal .tarjeta{max-width:26rem;width:100%}
 </style>
 </head>
 <body>
@@ -52,6 +54,9 @@
     </div>
   </section>
 </main>
+<div id="modal" class="oculto"><div class="tarjeta"><h2 id="mTit">Atención finalizada</h2><p class="sub" id="mTxt"></p>
+  <a class="btn wa ancho" id="mWa" target="_blank" rel="noopener">Enviar encuesta también por WhatsApp</a>
+  <button class="btn sec ancho" id="mCerrar" style="margin-top:.6rem">Cerrar</button></div></div>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -100,7 +105,7 @@ document.addEventListener("click",async e=>{
   const b=e.target.closest("[data-a]");if(!b)return;const id=b.closest("[data-id]").dataset.id,acc=b.dataset.a,extra={};
   if(acc==="nota"){const t=prompt("Nota para este conductor (ej. también tiene un problema con la app):");if(!t)return;extra.texto=t;extra.autor=(datos.asesores[S.cola]||{}).nombre||COLAS[S.cola]}
   if(acc==="finalizar"&&!confirm("¿Finalizar la atención de este conductor?"))return;
-  b.disabled=true;try{await api(acc,Object.assign({pin:S.pin,sede:S.sede,id},extra));await cargar()}catch(err){alert(err.message);b.disabled=false}
+  b.disabled=true;try{const r=await api(acc,Object.assign({pin:S.pin,sede:S.sede,id},extra));if(acc==="finalizar")avisoFinal(r.turno);await cargar()}catch(err){alert(err.message);b.disabled=false}
 });
 document.addEventListener("change",async e=>{
   const s=e.target.closest("[data-derivar]");if(!s||!s.value)return;const id=s.closest("[data-id]").dataset.id;
@@ -113,6 +118,13 @@ $("#bEntrar").onclick=async()=>{
   $("#hSede").textContent=S.sede;$("#pTitulo").textContent=COLAS[S.cola];$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");
   await cargar();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)cargar()},10000);
 };
+function avisoFinal(t){
+  const tel=String(t.telefono||"").replace(/\D/g,"").replace(/^0/,"58"),link=location.origin+"/encuesta.html?t="+t.id+"&k="+t.token;
+  const m=t.cola==="M"&&t.placa;$("#mTxt").textContent=m?"La encuesta le llegará por correo automáticamente cuando el vehículo "+t.placa+" salga del taller.":"La encuesta ya se envió al correo del conductor.";
+  $("#mWa").classList.toggle("oculto",!!m||tel.length<11);
+  $("#mWa").href="https://wa.me/"+tel+"?text="+encodeURIComponent(`Hola ${String(t.nombre).split(" ")[0]}, gracias por visitarnos en Ridery. ¿Nos ayudas calificando tu atención (turno ${t.turno})? ${link}`);
+  $("#modal").classList.remove("oculto")}
+$("#mCerrar").onclick=()=>$("#modal").classList.add("oculto");
 function salir(){clearInterval(timer);$("#panel").classList.add("oculto");$("#login").classList.remove("oculto")}
 $("#bSalir").onclick=salir;
 $("#lPin").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bEntrar").click()});

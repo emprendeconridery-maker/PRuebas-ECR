@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ridery · ¿Cómo te atendimos?</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⭐</text></svg>">
+<link rel="stylesheet" href="/turnos.css">
+<script src="/config.js"></script>
+<style>
+.estrellas{display:flex;gap:.4rem;justify-content:space-between}
+.estrellas button{flex:1;font-size:2rem;line-height:1;padding:.55rem 0;border:1.5px solid var(--linea);background:#fff;border-radius:.7rem;cursor:pointer;color:#C9D1DE;transition:color .15s,border-color .15s,background .15s}
+.estrellas button.on{color:#F5A623;border-color:#F5C66B;background:#FFF9EC}
+.estrellas button:focus-visible{outline:3px solid var(--mag);outline-offset:2px}
+.etq{display:flex;justify-content:space-between;font-size:.78rem;color:var(--txt-2);margin-top:.3rem}
+.tres{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.tres .opcion{justify-content:center;padding:.8rem .4rem}
+</style>
+</head>
+<body>
+<header class="top"><img src="/logo.png" alt="Ridery"><div class="sede">Encuesta<b id="hTurno">—</b></div></header>
+<main class="caja">
+  <section class="tarjeta" id="pCargando"><p class="sub" style="margin:0">Cargando…</p></section>
+
+  <section class="tarjeta oculto" id="pForm">
+    <h1 id="hola">¡Hola!</h1>
+    <p class="sub">Tu opinión nos ayuda a atenderte mejor. Son 3 preguntas.</p>
+    <label>1. ¿Cómo calificas la atención de hoy?</label>
+    <div class="estrellas" data-campo="calificacion"></div><div class="etq"><span>Muy mala</span><span>Excelente</span></div>
+    <label>2. ¿Resolvimos lo que viniste a hacer?</label>
+    <div class="tres" id="resuelto"><button class="opcion" data-v="Sí">Sí</button><button class="opcion" data-v="En proceso">En proceso</button><button class="opcion" data-v="No">No</button></div>
+    <label id="lAsesor">3. ¿Cómo te atendió tu asesor?</label>
+    <div class="estrellas" data-campo="calificacion_asesor"></div><div class="etq"><span>Muy mal</span><span>Excelente</span></div>
+    <label for="comentario">¿Algo que quieras contarnos? <small>(opcional)</small></label>
+    <textarea id="comentario" placeholder="Tu comentario"></textarea>
+    <p class="error" id="eForm"></p>
+    <button class="btn ancho" id="bEnviar">Enviar respuesta</button>
+  </section>
+
+  <section class="tarjeta ticket oculto" id="pGracias">
+    <div style="font-size:3rem">🙌</div>
+    <h1 style="margin-top:.6rem">¡Gracias por tu respuesta!</h1>
+    <p class="sub">La usaremos para mejorar tu próxima visita.</p>
+  </section>
+
+  <section class="tarjeta oculto" id="pError"><h1>Enlace no válido</h1><p class="sub">Revisa que hayas abierto el enlace completo del correo o del WhatsApp.</p></section>
+  <p class="pie">Ridery · Emprende con Ridery</p>
+</main>
+<script>
+const $=s=>document.querySelector(s),Q=new URLSearchParams(location.search),R={calificacion:0,calificacion_asesor:0,resuelto:""};
+const ver=id=>{document.querySelectorAll("main>section").forEach(s=>s.classList.add("oculto"));$("#"+id).classList.remove("oculto")};
+document.querySelectorAll(".estrellas").forEach(g=>{const c=g.dataset.campo;
+  g.innerHTML=[1,2,3,4,5].map(n=>`<button type="button" aria-label="${n} de 5" data-n="${n}">★</button>`).join("");
+  g.querySelectorAll("button").forEach(b=>b.onclick=()=>{R[c]=+b.dataset.n;$("#eForm").textContent="";g.querySelectorAll("button").forEach(x=>x.classList.toggle("on",+x.dataset.n<=R[c]))})});
+document.querySelectorAll("#resuelto .opcion").forEach(b=>b.onclick=()=>{R.resuelto=b.dataset.v;$("#eForm").textContent="";document.querySelectorAll("#resuelto .opcion").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+(async()=>{
+  try{const r=await api("encuesta_ver",{id:Q.get("t"),k:Q.get("k")});$("#hTurno").textContent="Turno "+r.turno;
+    if(r.ya)return ver("pGracias");
+    $("#hola").textContent="¡Hola"+(r.nombre?" "+r.nombre:"")+"!";if(r.asesor)$("#lAsesor").textContent="3. ¿Cómo te atendió "+r.asesor+"?";ver("pForm")}
+  catch(e){ver("pError")}
+})();
+$("#bEnviar").onclick=async()=>{
+  if(!R.calificacion)return $("#eForm").textContent="Elige cuántas estrellas le das a la atención.";
+  if(!R.resuelto)return $("#eForm").textContent="Cuéntanos si resolvimos lo que viniste a hacer.";
+  const b=$("#bEnviar");b.disabled=true;b.textContent="Enviando…";$("#eForm").textContent="";
+  try{await api("encuesta_responder",Object.assign({id:Q.get("t"),k:Q.get("k"),comentario:$("#comentario").value.trim()},R));ver("pGracias")}
+  catch(e){$("#eForm").textContent="No pudimos guardar tu respuesta. Intenta de nuevo.";b.disabled=false;b.textContent="Enviar respuesta"}
+};
+</script>
+</body>
+</html>

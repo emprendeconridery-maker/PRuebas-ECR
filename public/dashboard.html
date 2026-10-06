@@ -76,6 +76,7 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
         <section class="bloque"><h2>Motivos más frecuentes</h2><div class="hbars" id="gMotivos"></div></section>
         <section class="bloque"><h2>Asesores</h2><div id="tAsesores"></div></section>
       </div>
+      <section class="bloque" style="margin-bottom:1rem"><h2>Lo que dicen los conductores</h2><div id="tComent"></div></section>
       <div class="grid2">
         <section class="bloque"><h2>Sedes</h2><div id="tSedes"></div></section>
         <section class="bloque"><h2 id="hAlertas">Casos con alerta</h2><div id="tAlertas"></div></section>
@@ -102,7 +103,8 @@ async function cargar(){
   $("#contenido").classList.add("cargando");
   try{
     const r=await api("kpi",{pin:PIN,sede:$("#fSede").value,cola:$("#fCola").value,desde:$("#fDesde").value,hasta:$("#fHasta").value});
-    const L=r.limite_min;
+    const L=r.limite_min,E=r.encuestas||{respuestas:0,enviadas:0,por_asesor:{},por_sede:{},comentarios:[]};
+    const est=v=>v==null?"—":"★ "+v;
     $("#kpis").innerHTML=
       kpi("Turnos",r.total,`S ${r.por_cola.S||0} · A ${r.por_cola.A||0} · M ${r.por_cola.M||0}`)+
       kpi("Tiempo 1 · espera en sala",dur(r.t1.prom),r.t1.n?`Mediana ${dur(r.t1.mediana)} · ${r.t1.n} atendidos`:"Sin atenciones","var(--azul)")+
@@ -110,13 +112,16 @@ async function cargar(){
       kpi("Duración de la atención",dur(r.atencion.prom),r.atencion.n?r.atencion.n+" finalizados":"","var(--slate)")+
       kpi("Tiempo 2 · taller hasta listo",dur(r.t2.prom),r.t2.n?`Mediana ${dur(r.t2.mediana)} · ${r.t2.n} vehículos`:"Aún sin vehículos listos","var(--teal-osc)")+
       kpi("Listo hasta retirado",dur(r.retiro.prom),r.retiro.n?r.retiro.n+" entregados":"Aún sin entregas","var(--mag)")+
-      kpi(`Casos de más de ${L/60} h`,r.alertas.length,"Espera en sala sin atender",r.alertas.length?"var(--rojo)":"var(--teal-osc)");
+      kpi(`Casos de más de ${L/60} h`,r.alertas.length,"Espera en sala sin atender",r.alertas.length?"var(--rojo)":"var(--teal-osc)")+
+      kpi("Satisfacción",E.calificacion==null?"—":"★ "+E.calificacion+" / 5",`${E.respuestas} respuestas · ${E.enviadas?Math.round(E.respuestas/E.enviadas*100):0}% respondió`,"#F5A623")+
+      kpi("Casos resueltos",E.resuelto_pct==null?"—":E.resuelto_pct+"%",E.calificacion_asesor==null?"Según la encuesta":"Asesores: ★ "+E.calificacion_asesor+" / 5","var(--teal-osc)");
     vbars($("#gHoras"),r.por_hora.map((n,h)=>({h,n})).filter(x=>x.h>=6&&x.h<21),x=>(x.h%12||12)+(x.h<12?"am":"pm"),x=>x.n,null,true);
     vbars($("#gDias"),r.por_dia,x=>x.dia.slice(8)+"/"+x.dia.slice(5,7),x=>x.n,x=>x.t1==null?"—":x.t1+"m");
     const mx=Math.max(1,...r.motivos.map(m=>m.n));
     $("#gMotivos").innerHTML=r.motivos.length?r.motivos.map(m=>`<div class="hb"><span>${esc(m.motivo)}</span><div class="barra"><i style="width:${m.n/mx*100}%"></i></div><b>${m.n}</b></div>`).join(""):`<div class="vacio">Sin datos</div>`;
-    tabla($("#tAsesores"),[{t:"Asesor",f:x=>esc(x.asesor)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`},{t:"Atención prom.",n:1,f:x=>dur(x.atencion)}],r.asesores);
-    tabla($("#tSedes"),[{t:"Sede",f:x=>esc(x.sede)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`}],r.sedes);
+    tabla($("#tAsesores"),[{t:"Asesor",f:x=>esc(x.asesor)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`},{t:"Atención prom.",n:1,f:x=>dur(x.atencion)},{t:"Satisfacción",n:1,f:x=>est(E.por_asesor[x.asesor])}],r.asesores);
+    tabla($("#tSedes"),[{t:"Sede",f:x=>esc(x.sede)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`},{t:"Satisfacción",n:1,f:x=>est(E.por_sede[x.sede])}],r.sedes);
+    tabla($("#tComent"),[{t:"Fecha",f:x=>x.dia.slice(8)+"/"+x.dia.slice(5,7)},{t:"Turno",f:x=>esc(x.turno)},{t:"Asesor",f:x=>esc(x.asesor||"—")},{t:"Calificación",f:x=>`<span style="color:#F5A623">${"★".repeat(x.calificacion)}</span>`},{t:"Comentario",f:x=>esc(x.comentario)}],E.comentarios);
     $("#hAlertas").textContent=`Casos con más de ${L/60} h de espera`;
     tabla($("#tAlertas"),[{t:"Turno",f:x=>`<b style="color:${COL[x.cola]}">${esc(x.turno)}</b>`},{t:"Fecha",f:x=>x.dia.slice(8)+"/"+x.dia.slice(5,7)},{t:"Sede",f:x=>esc(x.sede)},{t:"Asesor",f:x=>esc(x.asesor||"—")},{t:"Espera",n:1,f:x=>`<span class="rojo">${dur(x.espera)}</span>${x.atendido?"":" (sin atender)"}`}],r.alertas);
   }catch(e){if(/PIN/.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent="PIN incorrecto."}else alert("No se pudieron cargar los datos: "+e.message)}

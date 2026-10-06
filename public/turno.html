@@ -24,7 +24,7 @@
     <label for="cedula">Cédula</label><input id="cedula" inputmode="numeric" autocomplete="off" placeholder="Ej. 12345678">
     <label for="nombre">Nombre y apellido</label><input id="nombre" autocomplete="name" placeholder="Ej. Juan Pérez">
     <label for="telefono">Teléfono (WhatsApp)</label><input id="telefono" type="tel" autocomplete="tel" placeholder="Ej. 0412 1234567">
-    <label for="correo">Correo <small>(opcional)</small></label><input id="correo" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com">
+    <label for="correo">Correo electrónico <small>(te enviaremos una breve encuesta)</small></label><input id="correo" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com">
     <p class="error" id="eDatos"></p>
     <button class="btn ancho" id="bDatos">Continuar</button>
   </section>
@@ -117,6 +117,7 @@ $("#bDatos").onclick=()=>{const d=datos();
   if(!/^\d{5,10}$/.test(d.cedula.replace(/\D/g,"")))return $("#eDatos").textContent="Escribe tu cédula (solo números).";
   if(d.nombre.split(/\s+/).length<2)return $("#eDatos").textContent="Escribe tu nombre y apellido.";
   if(d.telefono.replace(/\D/g,"").length<10)return $("#eDatos").textContent="Escribe un teléfono válido.";
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.correo))return $("#eDatos").textContent="Escribe un correo válido.";
   $("#eDatos").textContent="";try{localStorage.setItem("persona",JSON.stringify(d))}catch(e){}ver("pArea")};
 
 /* Área */
