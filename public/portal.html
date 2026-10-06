@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ridery · Portal de atención</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+<link rel="stylesheet" href="/turnos.css">
+<script src="/config.js"></script>
+<style>
+body{background:var(--lienzo)}
+.hero{background:radial-gradient(ellipse at 20% 0%,#1D3A60 0%,#122641 55%,#0E1F37 100%);color:#fff;padding:2.2rem 1.5rem 5.5rem;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-3rem;top:50%;width:22rem;height:22rem;transform:translateY(-50%);opacity:.08;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 24'%3E%3Cpath d='M4 3l9 9-9 9M28 3l9 9-9 9M52 3l9 9-9 9' fill='none' stroke='%23E31574' stroke-width='5'/%3E%3C/svg%3E") center/contain no-repeat}
+.hero-in{max-width:68rem;margin:auto;position:relative;z-index:1}
+.marca{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.marca .logo{background:#fff;border-radius:.8rem;padding:.55rem .8rem}
+.marca .logo img{height:2.6rem;display:block}
+.reloj{text-align:right}.reloj b{display:block;font:600 1.8rem/1 var(--fd)}.reloj span{font-size:.9rem;color:#C9D4E6}
+.hero h1{font:700 2.3rem/1.15 var(--fd);margin:2.2rem 0 .5rem;color:#fff}
+.hero p{color:#C9D4E6;font-size:1.08rem;max-width:40rem;margin:0}
+.sede-sel{display:flex;align-items:center;gap:.7rem;margin-top:1.4rem;flex-wrap:wrap}
+.sede-sel label{margin:0;color:#C9D4E6;font-weight:600}
+.sede-sel select{width:auto;min-width:14rem;background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25)}
+.sede-sel select option{color:var(--txt)}
+.estado{display:inline-flex;gap:.9rem;align-items:center;background:rgba(255,255,255,.1);border-radius:2rem;padding:.45rem 1rem;font-size:.9rem}
+.estado i{width:.55rem;height:.55rem;border-radius:50%;background:var(--teal)}
+.cuerpo{max-width:68rem;margin:-3.6rem auto 2rem;padding:0 1.2rem;position:relative;z-index:2}
+.grupo{margin-bottom:1.6rem}
+.grupo h2{font:600 .85rem var(--f);letter-spacing:.02em;color:var(--txt-2);margin:0 0 .7rem .2rem}
+.hero+.cuerpo .grupo:first-child h2{color:#C9D4E6}
+.tarjetas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}
+@media(max-width:900px){.tarjetas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.tarjetas{grid-template-columns:1fr}}
+.acceso{display:flex;flex-direction:column;gap:.55rem;background:#fff;border-radius:1rem;box-shadow:var(--sombra);padding:1.2rem 1.2rem 1.1rem;text-decoration:none;color:var(--txt);
+  border:1.5px solid transparent;transition:transform .15s,box-shadow .15s,border-color .15s;cursor:pointer;text-align:left;font:inherit}
+.acceso:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c) 35%,transparent);box-shadow:0 .3rem .8rem rgba(21,43,73,.1),0 1rem 2rem rgba(21,43,73,.08)}
+.acceso:focus-visible{outline:3px solid var(--mag);outline-offset:2px}
+.ico{width:2.8rem;height:2.8rem;border-radius:.75rem;display:grid;place-items:center;background:var(--c);color:#fff}
+.ico svg{width:1.5rem;height:1.5rem}
+.acceso b{font:600 1.08rem var(--fd)}
+.acceso span{font-size:.9rem;color:var(--txt-2);line-height:1.4}
+.acceso .pie-a{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:auto;padding-top:.4rem}
+.acceso .ir{font-weight:600;font-size:.88rem;color:var(--c);white-space:nowrap}
+.candado{font-size:.75rem;font-weight:600;color:var(--txt-2);background:var(--lienzo);border-radius:1rem;padding:.15rem .55rem}
+#modal{position:fixed;inset:0;background:rgba(21,43,73,.5);display:grid;place-items:center;padding:1rem;z-index:5}
+#modal .tarjeta{max-width:24rem;width:100%}
+footer{text-align:center;color:var(--txt-2);font-size:.82rem;padding:1rem 1rem 2rem}
+@media(max-width:600px){.hero h1{font-size:1.8rem}.reloj{display:none}}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="hero-in">
+    <div class="marca"><div class="logo"><img src="/logo.png" alt="Ridery"></div><div class="reloj"><b id="hora">—</b><span id="fecha"></span></div></div>
+    <h1 id="saludo">Bienvenido</h1>
+    <p>Portal de atención de Emprende con Ridery. Elige a dónde quieres ir.</p>
+    <div class="sede-sel"><label for="sede">Sede</label><select id="sede"></select><span class="estado oculto" id="estado"><i></i><span id="eTxt"></span></span></div>
+  </div>
+</section>
+
+<main class="cuerpo">
+  <div class="grupo"><h2>Para conductores</h2><div class="tarjetas">
+    <a class="acceso" data-ir="turno" style="--c:var(--teal-osc)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 0 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg></div>
+      <b>Solicitar turno</b><span>Regístrate al llegar a la sede y espera tu llamado en la pantalla.</span><div class="pie-a"><span class="ir">Abrir →</span></div></a>
+    <a class="acceso" data-ir="quejas" style="--c:var(--mag)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <b>Quejas y sugerencias</b><span>Cuéntanos qué pasó o cómo podemos mejorar. Puede ser anónimo.</span><div class="pie-a"><span class="ir">Abrir →</span></div></a>
+  </div></div>
+
+  <div class="grupo"><h2>Equipo de la sede</h2><div class="tarjetas">
+    <a class="acceso" href="/asesor.html" style="--c:var(--azul)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></div>
+      <b>Panel del asesor</b><span>Lista de espera, llamar conductores, notas y derivaciones.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN asesor</span></div></a>
+    <button class="acceso" id="bTV" style="--c:var(--navy)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <b>Pantalla de la sala (TV)</b><span>Estado de los vehículos y llamado de turnos con voz.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 Clave TV</span></div></button>
+  </div></div>
+
+  <div class="grupo"><h2>Coordinación</h2><div class="tarjetas">
+    <a class="acceso" href="/admin.html" style="--c:var(--slate)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div>
+      <b>Panel del coordinador</b><span>Asigna quién atiende cada área e imprime los QR de la sede.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN coordinador</span></div></a>
+    <a class="acceso" href="/dashboard.html" style="--c:var(--teal-osc)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
+      <b>Indicadores (KPI)</b><span>Tiempos de espera, horas pico, satisfacción y desempeño por asesor.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN coordinador</span></div></a>
+    <a class="acceso" href="/bandeja.html" style="--c:var(--rojo)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg></div>
+      <b>Bandeja de quejas</b><span>Revisa, clasifica y responde quejas, sugerencias y felicitaciones.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN coordinador</span></div></a>
+  </div></div>
+</main>
+<footer>Emprende con Ridery · Portal de atención</footer>
+
+<div id="modal" class="oculto"><div class="tarjeta">
+  <h2>Pantalla de la sala</h2><p class="sub">Escribe la clave de la TV. Se recordará en este equipo.</p>
+  <label for="clave">Clave</label><input id="clave" type="password">
+  <button class="btn ancho" id="bIrTV">Abrir pantalla</button><button class="btn sec ancho" id="bCerrar" style="margin-top:.5rem">Cancelar</button>
+</div></div>
+<script>
+const $=s=>document.querySelector(s);
+const sedes=Object.values(SEDES).flat();
+$("#sede").innerHTML=sedes.map(s=>`<option>${s}</option>`).join("");
+try{const g=localStorage.getItem("portal_sede");if(g&&sedes.includes(g))$("#sede").value=g}catch(e){}
+function reloj(){const d=new Date(),h=d.getHours();
+  $("#hora").textContent=d.toLocaleTimeString("es-VE",{hour:"numeric",minute:"2-digit"});
+  const f=d.toLocaleDateString("es-VE",{weekday:"long",day:"numeric",month:"long"});$("#fecha").textContent=f.charAt(0).toUpperCase()+f.slice(1);
+  $("#saludo").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+", bienvenido"}
+reloj();setInterval(reloj,30000);
+async function estado(){
+  if(!window.TURNOS_API||!/^https?:\/\//.test(TURNOS_API))return;
+  try{const r=await fetch(TURNOS_API+"?accion=tv&sede="+encodeURIComponent($("#sede").value));const d=await r.json();if(!d.ok)return;
+    const e=d.espera||{},t=(e.S||0)+(e.A||0)+(e.M||0);
+    $("#eTxt").textContent=t?`${t} en espera ahora · S ${e.S||0} · A ${e.A||0} · M ${e.M||0}`:"Sin conductores en espera";$("#estado").classList.remove("oculto")}catch(e){}
+}
+$("#sede").onchange=()=>{try{localStorage.setItem("portal_sede",$("#sede").value)}catch(e){};$("#estado").classList.add("oculto");estado()};
+estado();setInterval(()=>{if(!document.hidden)estado()},60000);
+document.querySelectorAll("[data-ir]").forEach(a=>a.onclick=()=>{location.href="/"+a.dataset.ir+".html?sede="+encodeURIComponent($("#sede").value)});
+$("#bTV").onclick=()=>{let c="";try{c=localStorage.getItem("clave_tv")||""}catch(e){}$("#clave").value=c;$("#modal").classList.remove("oculto");$("#clave").focus()};
+$("#bCerrar").onclick=()=>$("#modal").classList.add("oculto");
+$("#bIrTV").onclick=()=>{const c=$("#clave").value.trim();if(!c)return;try{localStorage.setItem("clave_tv",c)}catch(e){}location.href="/?clave="+encodeURIComponent(c)};
+$("#clave").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bIrTV").click()});
+</script>
+</body>
+</html>
