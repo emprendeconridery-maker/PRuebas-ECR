@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ridery · Indicadores de atención</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="stylesheet" href="/turnos.css">
+<script src="/config.js"></script>
+<style>
+.caja{max-width:78rem}
+.filtros{display:flex;flex-wrap:wrap;gap:.7rem;align-items:end;background:#fff;border-radius:1rem;box-shadow:var(--sombra);padding:1rem 1.2rem;margin-bottom:1rem}
+.filtros label{margin:0 0 .3rem;font-size:.8rem;color:var(--txt-2)}
+.filtros select,.filtros input{padding:.55rem .7rem;width:auto}
+.periodos{display:flex;gap:.3rem;flex-wrap:wrap}
+.periodos button{font:600 .88rem var(--f);border:1.5px solid var(--linea);background:#fff;color:var(--txt);border-radius:.55rem;padding:.5rem .8rem;cursor:pointer}
+.periodos button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.8rem;margin-bottom:1rem}
+.kpi{background:#fff;border-radius:.9rem;box-shadow:var(--sombra);padding:1rem 1.1rem;border-top:.25rem solid var(--c,var(--navy))}
+.kpi span{display:block;font-size:.82rem;color:var(--txt-2)}
+.kpi b{display:block;font:700 1.7rem/1.15 var(--fd);margin:.3rem 0 .15rem}
+.kpi small{font-size:.78rem;color:var(--txt-2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.bloque{background:#fff;border-radius:1rem;box-shadow:var(--sombra);padding:1.1rem 1.2rem}
+.bloque h2{margin-bottom:.9rem}
+.vbars{display:flex;align-items:flex-end;gap:.35rem;height:11rem;padding-top:1.2rem;overflow-x:auto}
+.vb{flex:1 0 1.6rem;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:.25rem}
+.vb i{display:block;width:100%;background:var(--c,var(--azul));border-radius:.3rem .3rem 0 0;min-height:2px}
+.vb.pico i{background:var(--mag)}
+.vb em{font-style:normal;font-size:.72rem;color:var(--txt-2);white-space:nowrap}
+.vb b{font-size:.72rem}
+.hbars{display:grid;gap:.5rem}
+.hb{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr 2.5rem;gap:.6rem;align-items:center;font-size:.88rem}
+.hb .barra{height:.85rem;background:var(--lienzo);border-radius:1rem;overflow:hidden}
+.hb .barra i{display:block;height:100%;background:var(--teal-osc);border-radius:1rem}
+.hb b{text-align:right}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;color:var(--txt-2);font-weight:600;font-size:.8rem;padding:.45rem .4rem;border-bottom:1px solid var(--linea)}
+td{padding:.5rem .4rem;border-bottom:1px solid var(--linea)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.rojo{color:var(--rojo);font-weight:600}
+.vacio{color:var(--txt-2);text-align:center;padding:1.5rem}
+.cargando{opacity:.5;pointer-events:none}
+.nota{font-size:.8rem;color:var(--txt-2);margin-top:.6rem}
+</style>
+</head>
+<body>
+<header class="top"><img src="/logo.png" alt="Ridery"><div class="sede">Indicadores de atención<b>Solo coordinador</b></div></header>
+<main class="caja">
+  <section class="tarjeta" id="login" style="max-width:30rem;margin:auto">
+    <h1>Indicadores (KPI)</h1>
+    <p class="sub">Acceso exclusivo para coordinadores.</p>
+    <label for="lPin">PIN de coordinador</label><input id="lPin" type="password" inputmode="numeric">
+    <p class="error" id="eLogin"></p>
+    <button class="btn ancho" id="bEntrar">Entrar</button>
+  </section>
+
+  <div class="oculto" id="panel">
+    <div class="filtros">
+      <div><label for="fSede">Sede</label><select id="fSede"><option value="*">Todas las sedes</option></select></div>
+      <div><label for="fCola">Área</label><select id="fCola"><option value="*">Todas</option><option value="S">Soporte</option><option value="A">Aspirantes</option><option value="M">Mantenimiento</option></select></div>
+      <div><label>Período</label><div class="periodos" id="periodos">
+        <button data-p="hoy">Hoy</button><button data-p="7" aria-pressed="true">7 días</button><button data-p="30">30 días</button><button data-p="mes">Este mes</button></div></div>
+      <div><label for="fDesde">Desde</label><input type="date" id="fDesde"></div>
+      <div><label for="fHasta">Hasta</label><input type="date" id="fHasta"></div>
+      <a class="btn sec chico" href="/admin.html" style="margin-left:auto">← Panel del coordinador</a>
+    </div>
+
+    <div id="contenido">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <section class="bloque"><h2>Horas pico (llegadas por hora)</h2><div class="vbars" id="gHoras"></div></section>
+        <section class="bloque"><h2>Turnos por día</h2><div class="vbars" id="gDias" style="--c:var(--teal-osc)"></div><p class="nota">Debajo de cada barra: espera promedio en sala (Tiempo 1).</p></section>
+      </div>
+      <div class="grid2">
+        <section class="bloque"><h2>Motivos más frecuentes</h2><div class="hbars" id="gMotivos"></div></section>
+        <section class="bloque"><h2>Asesores</h2><div id="tAsesores"></div></section>
+      </div>
+      <div class="grid2">
+        <section class="bloque"><h2>Sedes</h2><div id="tSedes"></div></section>
+        <section class="bloque"><h2 id="hAlertas">Casos con alerta</h2><div id="tAlertas"></div></section>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const COL={S:"var(--azul)",A:"var(--mag)",M:"var(--teal-osc)"};
+let PIN="";
+$("#fSede").innerHTML+=Object.values(SEDES).flat().map(s=>`<option>${s}</option>`).join("");
+const diaVE=d=>d.toLocaleDateString("en-CA",{timeZone:"America/Caracas"});
+function periodo(p){const h=new Date(),hasta=diaVE(h);let desde=hasta;
+  if(p==="7")desde=diaVE(new Date(h-6*864e5));if(p==="30")desde=diaVE(new Date(h-29*864e5));if(p==="mes")desde=hasta.slice(0,8)+"01";
+  $("#fDesde").value=desde;$("#fHasta").value=hasta;document.querySelectorAll("#periodos button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===p))}
+const dur=m=>m==null?"—":m<60?m+" min":m<1440?Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")+" min":Math.floor(m/1440)+" d "+Math.floor(m%1440/60)+" h";
+function kpi(t,v,sub,c){return `<div class="kpi" style="--c:${c||"var(--navy)"}"><span>${t}</span><b>${v}</b><small>${sub||""}</small></div>`}
+function vbars(el,datos,etq,val,extra,pico){const mx=Math.max(1,...datos.map(val));
+  el.innerHTML=datos.length?datos.map((d,i)=>{const v=val(d);return `<div class="vb${pico&&v===mx&&v>0?" pico":""}" title="${esc(etq(d))}: ${v}"><b>${v||""}</b><i style="height:${v/mx*100}%"></i><em>${esc(etq(d))}</em>${extra?`<em>${esc(extra(d))}</em>`:""}</div>`}).join(""):`<div class="vacio">Sin datos</div>`}
+function tabla(el,cols,filas){el.innerHTML=filas.length?`<table><tr>${cols.map(c=>`<th${c.n?' style="text-align:right"':""}>${c.t}</th>`).join("")}</tr>${filas.map(f=>`<tr>${cols.map(c=>`<td${c.n?' class="n"':""}>${c.f(f)}</td>`).join("")}</tr>`).join("")}</table>`:`<div class="vacio">Sin datos</div>`}
+async function cargar(){
+  $("#contenido").classList.add("cargando");
+  try{
+    const r=await api("kpi",{pin:PIN,sede:$("#fSede").value,cola:$("#fCola").value,desde:$("#fDesde").value,hasta:$("#fHasta").value});
+    const L=r.limite_min;
+    $("#kpis").innerHTML=
+      kpi("Turnos",r.total,`S ${r.por_cola.S||0} · A ${r.por_cola.A||0} · M ${r.por_cola.M||0}`)+
+      kpi("Tiempo 1 · espera en sala",dur(r.t1.prom),r.t1.n?`Mediana ${dur(r.t1.mediana)} · ${r.t1.n} atendidos`:"Sin atenciones","var(--azul)")+
+      kpi("Atendidos en 30 min o menos",r.pct_30==null?"—":r.pct_30+"%","Meta sugerida: 80%","var(--teal-osc)")+
+      kpi("Duración de la atención",dur(r.atencion.prom),r.atencion.n?r.atencion.n+" finalizados":"","var(--slate)")+
+      kpi("Tiempo 2 · taller hasta listo",dur(r.t2.prom),r.t2.n?`Mediana ${dur(r.t2.mediana)} · ${r.t2.n} vehículos`:"Aún sin vehículos listos","var(--teal-osc)")+
+      kpi("Listo hasta retirado",dur(r.retiro.prom),r.retiro.n?r.retiro.n+" entregados":"Aún sin entregas","var(--mag)")+
+      kpi(`Casos de más de ${L/60} h`,r.alertas.length,"Espera en sala sin atender",r.alertas.length?"var(--rojo)":"var(--teal-osc)");
+    vbars($("#gHoras"),r.por_hora.map((n,h)=>({h,n})).filter(x=>x.h>=6&&x.h<21),x=>(x.h%12||12)+(x.h<12?"am":"pm"),x=>x.n,null,true);
+    vbars($("#gDias"),r.por_dia,x=>x.dia.slice(8)+"/"+x.dia.slice(5,7),x=>x.n,x=>x.t1==null?"—":x.t1+"m");
+    const mx=Math.max(1,...r.motivos.map(m=>m.n));
+    $("#gMotivos").innerHTML=r.motivos.length?r.motivos.map(m=>`<div class="hb"><span>${esc(m.motivo)}</span><div class="barra"><i style="width:${m.n/mx*100}%"></i></div><b>${m.n}</b></div>`).join(""):`<div class="vacio">Sin datos</div>`;
+    tabla($("#tAsesores"),[{t:"Asesor",f:x=>esc(x.asesor)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`},{t:"Atención prom.",n:1,f:x=>dur(x.atencion)}],r.asesores);
+    tabla($("#tSedes"),[{t:"Sede",f:x=>esc(x.sede)},{t:"Turnos",n:1,f:x=>x.n},{t:"Espera prom.",n:1,f:x=>`<span class="${x.t1>L?"rojo":""}">${dur(x.t1)}</span>`}],r.sedes);
+    $("#hAlertas").textContent=`Casos con más de ${L/60} h de espera`;
+    tabla($("#tAlertas"),[{t:"Turno",f:x=>`<b style="color:${COL[x.cola]}">${esc(x.turno)}</b>`},{t:"Fecha",f:x=>x.dia.slice(8)+"/"+x.dia.slice(5,7)},{t:"Sede",f:x=>esc(x.sede)},{t:"Asesor",f:x=>esc(x.asesor||"—")},{t:"Espera",n:1,f:x=>`<span class="rojo">${dur(x.espera)}</span>${x.atendido?"":" (sin atender)"}`}],r.alertas);
+  }catch(e){if(/PIN/.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent="PIN incorrecto."}else alert("No se pudieron cargar los datos: "+e.message)}
+  finally{$("#contenido").classList.remove("cargando")}
+}
+document.querySelectorAll("#periodos button").forEach(b=>b.onclick=()=>{periodo(b.dataset.p);cargar()});
+["#fSede","#fCola","#fDesde","#fHasta"].forEach(s=>$(s).addEventListener("change",()=>{if(s==="#fDesde"||s==="#fHasta")document.querySelectorAll("#periodos button").forEach(b=>b.setAttribute("aria-pressed",false));cargar()}));
+$("#bEntrar").onclick=async()=>{PIN=$("#lPin").value.trim();$("#eLogin").textContent="";$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");periodo("7");await cargar()};
+$("#lPin").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bEntrar").click()});
+</script>
+</body>
+</html>
