@@ -8,7 +8,7 @@
 <script src="/config.js"></script>
 <style>
 body{background:var(--lienzo)}
-.hero{background:radial-gradient(ellipse at 20% 0%,#1D3A60 0%,#122641 55%,#0E1F37 100%);color:#fff;padding:2.2rem 1.5rem 5.5rem;position:relative;overflow:hidden}
+.hero{background:radial-gradient(1200px 500px at 15% -10%,#24456E 0%,#172C49 45%,#0D1B30 100%);color:#fff;padding:2.6rem 1.5rem 6rem;position:relative;overflow:hidden}
 .hero::after{content:"";position:absolute;right:-3rem;top:50%;width:22rem;height:22rem;transform:translateY(-50%);opacity:.08;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 24'%3E%3Cpath d='M4 3l9 9-9 9M28 3l9 9-9 9M52 3l9 9-9 9' fill='none' stroke='%23E31574' stroke-width='5'/%3E%3C/svg%3E") center/contain no-repeat}
 .hero-in{max-width:68rem;margin:auto;position:relative;z-index:1}
@@ -16,28 +16,29 @@ body{background:var(--lienzo)}
 .marca .logo{background:#fff;border-radius:.8rem;padding:.55rem .8rem}
 .marca .logo img{height:2.6rem;display:block}
 .reloj{text-align:right}.reloj b{display:block;font:600 1.8rem/1 var(--fd)}.reloj span{font-size:.9rem;color:#C9D4E6}
-.hero h1{font:700 2.3rem/1.15 var(--fd);margin:2.2rem 0 .5rem;color:#fff}
-.hero p{color:#C9D4E6;font-size:1.08rem;max-width:40rem;margin:0}
+.hero h1{font:800 2.7rem/1.1 var(--fd);margin:2.4rem 0 .55rem;color:#fff;letter-spacing:-.03em}
+.hero p{color:#AFC0DA;font-size:1.1rem;max-width:42rem;margin:0}
 .sede-sel{display:flex;align-items:center;gap:.7rem;margin-top:1.4rem;flex-wrap:wrap}
 .sede-sel label{margin:0;color:#C9D4E6;font-weight:600}
-.sede-sel select{width:auto;min-width:14rem;background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.25)}
+.sede-sel select{width:auto;min-width:15rem;background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.22);font-weight:600;backdrop-filter:blur(6px)}
 .sede-sel select option{color:var(--txt)}
-.estado{display:inline-flex;gap:.9rem;align-items:center;background:rgba(255,255,255,.1);border-radius:2rem;padding:.45rem 1rem;font-size:.9rem}
+.estado{display:inline-flex;gap:.7rem;align-items:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);border-radius:2rem;padding:.5rem 1.1rem;font-size:.9rem;backdrop-filter:blur(6px)}
 .estado i{width:.55rem;height:.55rem;border-radius:50%;background:var(--teal)}
-.cuerpo{max-width:68rem;margin:-3.6rem auto 2rem;padding:0 1.2rem;position:relative;z-index:2}
+.cuerpo{max-width:70rem;margin:-4rem auto 2rem;padding:0 1.2rem;position:relative;z-index:2}
 .grupo{margin-bottom:1.6rem}
-.grupo h2{font:600 .85rem var(--f);letter-spacing:.02em;color:var(--txt-2);margin:0 0 .7rem .2rem}
+.grupo h2{font:700 .78rem var(--f);letter-spacing:.08em;text-transform:uppercase;color:var(--txt-3);margin:0 0 .8rem .2rem}
 .hero+.cuerpo .grupo:first-child h2{color:#C9D4E6}
 .tarjetas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}
 @media(max-width:900px){.tarjetas{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.tarjetas{grid-template-columns:1fr}}
-.acceso{display:flex;flex-direction:column;gap:.55rem;background:#fff;border-radius:1rem;box-shadow:var(--sombra);padding:1.2rem 1.2rem 1.1rem;text-decoration:none;color:var(--txt);
-  border:1.5px solid transparent;transition:transform .15s,box-shadow .15s,border-color .15s;cursor:pointer;text-align:left;font:inherit}
-.acceso:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--c) 35%,transparent);box-shadow:0 .3rem .8rem rgba(21,43,73,.1),0 1rem 2rem rgba(21,43,73,.08)}
+.acceso{display:flex;flex-direction:column;gap:.6rem;background:#fff;border-radius:1.1rem;box-shadow:var(--s2);padding:1.3rem 1.3rem 1.15rem;text-decoration:none;color:var(--txt);border:1px solid var(--linea);transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .16s,border-color .16s;cursor:pointer;text-align:left;font:inherit;position:relative;overflow:hidden}
+.acceso:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--c) 40%,transparent);box-shadow:0 .5rem 1.2rem rgba(21,43,73,.1),0 1.4rem 2.6rem rgba(21,43,73,.1)}
+.acceso::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--c);opacity:0;transition:opacity .16s}
+.acceso:hover::before{opacity:1}
 .acceso:focus-visible{outline:3px solid var(--mag);outline-offset:2px}
-.ico{width:2.8rem;height:2.8rem;border-radius:.75rem;display:grid;place-items:center;background:var(--c);color:#fff}
+.ico{width:3rem;height:3rem;border-radius:.85rem;display:grid;place-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--c) 85%,#fff),var(--c));color:#fff;box-shadow:0 .3rem .7rem color-mix(in srgb,var(--c) 35%,transparent)}
 .ico svg{width:1.5rem;height:1.5rem}
-.acceso b{font:600 1.08rem var(--fd)}
+.acceso b{font:700 1.12rem var(--fd);letter-spacing:-.01em}
 .acceso span{font-size:.9rem;color:var(--txt-2);line-height:1.4}
 .acceso .pie-a{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:auto;padding-top:.4rem}
 .acceso .ir{font-weight:600;font-size:.88rem;color:var(--c);white-space:nowrap}
@@ -61,7 +62,7 @@ footer{text-align:center;color:var(--txt-2);font-size:.82rem;padding:1rem 1rem 2
 <main class="cuerpo">
   <div class="grupo"><h2>Para conductores</h2><div class="tarjetas">
     <a class="acceso" data-ir="turno" style="--c:var(--teal-osc)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 0 0 6v3a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-3a2 2 0 0 0 0-6V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg></div>
-      <b>Solicitar turno</b><span>Regístrate al llegar a la sede y espera tu llamado en la pantalla.</span><div class="pie-a"><span class="ir">Abrir →</span></div></a>
+      <b>Solicitar turno</b><span>Regístrate al llegar <b>o desde el camino</b> y espera tu llamado en la pantalla.</span><div class="pie-a"><span class="ir">Abrir →</span></div></a>
     <a class="acceso" data-ir="quejas" style="--c:var(--mag)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
       <b>Quejas y sugerencias</b><span>Cuéntanos qué pasó o cómo podemos mejorar. Puede ser anónimo.</span><div class="pie-a"><span class="ir">Abrir →</span></div></a>
   </div></div>
@@ -78,6 +79,8 @@ footer{text-align:center;color:var(--txt-2);font-size:.82rem;padding:1rem 1rem 2
       <b>Panel del coordinador</b><span>Asigna quién atiende cada área e imprime los QR de la sede.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN coordinador</span></div></a>
     <a class="acceso" href="/dashboard.html" style="--c:var(--teal-osc)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg></div>
       <b>Indicadores (KPI)</b><span>Tiempos de espera, horas pico, satisfacción y desempeño por asesor.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN coordinador</span></div></a>
+    <a class="acceso" href="/supervision.html" style="--c:var(--navy-2)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <b>Supervisión en vivo</b><span>Todas las sedes en una pantalla, con alertas de espera.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN coordinador</span></div></a>
     <a class="acceso" href="/bandeja.html" style="--c:var(--rojo)"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg></div>
       <b>Bandeja de quejas</b><span>Revisa, clasifica y responde quejas, sugerencias y felicitaciones.</span><div class="pie-a"><span class="ir">Abrir →</span><span class="candado">🔒 PIN coordinador</span></div></a>
   </div></div>

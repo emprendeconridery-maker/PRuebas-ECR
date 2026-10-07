@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ridery · Supervisión en vivo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
+<link rel="stylesheet" href="/turnos.css">
+<script src="/config.js"></script>
+<style>
+.caja{max-width:76rem}
+.cab-sup{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem}
+.tot{display:flex;gap:.6rem;flex-wrap:wrap}
+.chip{background:#fff;border-radius:2rem;box-shadow:var(--s2);padding:.5rem 1rem;font-size:.9rem}.chip b{font-family:var(--fd);font-size:1.1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(17rem,1fr));gap:1rem}
+.sede{background:#fff;border-radius:var(--r3);box-shadow:var(--s3);padding:1.2rem 1.3rem;border-top:.3rem solid var(--teal-osc)}
+.sede.alerta{border-top-color:var(--rojo)}
+.sede h2{display:flex;justify-content:space-between;align-items:center;font-size:1.15rem;margin-bottom:.9rem}
+.sede .tag{font-size:.75rem;font-weight:600;color:#fff;background:var(--teal-osc);border-radius:1rem;padding:.15rem .6rem}
+.sede.alerta .tag{background:var(--rojo)}
+.colas{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.9rem}
+.c{background:var(--lienzo);border-radius:.7rem;padding:.6rem;text-align:center;border-top:.2rem solid var(--k)}
+.c b{display:block;font:700 1.5rem var(--fd)} .c span{font-size:.72rem;color:var(--txt-2)}
+.c em{display:block;font-size:.72rem;color:var(--txt-3);font-style:normal;margin-top:.15rem}
+.linea{display:flex;justify-content:space-between;font-size:.85rem;color:var(--txt-2);padding:.3rem 0;border-top:1px solid var(--linea)}
+.linea b{color:var(--txt)} .rojo{color:var(--rojo);font-weight:600}
+.vacio{color:var(--txt-2);text-align:center;padding:2.5rem;background:#fff;border-radius:var(--r3)}
+.act{font-size:.82rem;color:var(--txt-3)}
+.live{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--teal-osc);font-weight:600}
+.live i{width:.5rem;height:.5rem;border-radius:50%;background:var(--teal);animation:lat 1.5s infinite}
+@keyframes lat{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<header class="top"><a href="/portal.html" title="Ir al portal"><img src="/logo.png" alt="Ridery"></a><div class="sede">Supervisión en vivo<b>Todas las sedes</b></div></header>
+<main class="caja">
+  <section class="tarjeta" id="login" style="max-width:30rem;margin:auto">
+    <h1>Supervisión en vivo</h1><p class="sub">Monitorea todas las sedes en una sola pantalla.</p>
+    <label for="lPin">PIN de coordinador</label><input id="lPin" type="password" inputmode="numeric">
+    <p class="error" id="eLogin"></p><button class="btn ancho" id="bEntrar">Entrar</button>
+  </section>
+  <div class="oculto" id="panel">
+    <div class="cab-sup">
+      <div class="tot" id="tot"></div>
+      <div style="display:flex;gap:1rem;align-items:center"><span class="live"><i></i>En vivo</span><span class="act" id="act"></span></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const COL={S:"var(--azul)",A:"var(--mag)",M:"var(--teal-osc)"},NOM={S:"Soporte",A:"Aspirantes",M:"Mant."};
+let PIN="",timer=null;
+const hora=t=>new Date(t).toLocaleTimeString("es-VE",{hour:"numeric",minute:"2-digit"});
+async function cargar(){
+  try{const r=await api("supervision",{pin:PIN});
+    const sedes=r.sedes,espera=sedes.reduce((s,x)=>s+x.espera,0),atend=sedes.reduce((s,x)=>s+x.atendidos,0),alertas=sedes.reduce((s,x)=>s+x.alertas,0);
+    $("#tot").innerHTML=`<span class="chip">Sedes activas <b>${sedes.filter(s=>s.espera||s.atendidos).length}</b></span><span class="chip">En espera ahora <b>${espera}</b></span><span class="chip">Atendidos hoy <b>${atend}</b></span>`+(alertas?`<span class="chip" style="color:var(--rojo)">Con alerta <b>${alertas}</b></span>`:"");
+    $("#grid").innerHTML=sedes.length?sedes.map(s=>`<article class="sede${s.alertas?" alerta":""}">
+      <h2>${esc(s.sede)} ${s.alertas?`<span class="tag">${s.alertas} +${Math.round(r.limite_min/60)}h</span>`:s.espera?`<span class="tag">${s.espera} en espera</span>`:`<span class="tag" style="background:var(--slate)">al día</span>`}</h2>
+      <div class="colas">${["S","A","M"].map(k=>`<div class="c" style="--k:${COL[k]}"><b>${s.colas[k].espera||0}</b><span>${NOM[k]}</span>${s.colas[k].atencion?`<em>${s.colas[k].atencion} en atención</em>`:""}</div>`).join("")}</div>
+      <div class="linea"><span>Espera más larga</span><b class="${s.max_espera>r.limite_min?"rojo":""}">${s.max_espera?s.max_espera+" min":"—"}</b></div>
+      <div class="linea"><span>Atendidos hoy</span><b>${s.atendidos}</b></div></article>`).join(""):`<div class="vacio">Aún no hay actividad hoy en ninguna sede.</div>`;
+    $("#act").textContent="Actualizado "+hora(r.ahora);
+  }catch(e){if(/PIN|intentos/i.test(e.message)){$("#panel").classList.add("oculto");$("#login").classList.remove("oculto");$("#eLogin").textContent=/intentos/i.test(e.message)?e.message:"PIN incorrecto."}else $("#act").textContent="Sin conexión, reintentando…"}
+}
+$("#bEntrar").onclick=async()=>{PIN=$("#lPin").value.trim();$("#eLogin").textContent="";$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");
+  await cargar();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)cargar()},15000)};
+$("#lPin").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bEntrar").click()});
+</script>
+</body>
+</html>

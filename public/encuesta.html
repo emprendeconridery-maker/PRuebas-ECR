@@ -30,6 +30,10 @@
     <div class="tres" id="resuelto"><button class="opcion" data-v="Sí">Sí</button><button class="opcion" data-v="En proceso">En proceso</button><button class="opcion" data-v="No">No</button></div>
     <label id="lAsesor">3. ¿Cómo te atendió tu asesor?</label>
     <div class="estrellas" data-campo="calificacion_asesor"></div><div class="etq"><span>Muy mal</span><span>Excelente</span></div>
+    <div id="bloqueRecepcion" class="oculto">
+      <label>4. ¿Cómo fue la atención al recibir tu vehículo?</label>
+      <div class="estrellas" data-campo="calificacion_recepcion"></div><div class="etq"><span>Muy mala</span><span>Excelente</span></div>
+    </div>
     <label for="comentario">¿Algo que quieras contarnos? <small>(opcional)</small></label>
     <textarea id="comentario" placeholder="Tu comentario"></textarea>
     <p class="error" id="eForm"></p>
@@ -56,7 +60,7 @@ document.querySelectorAll("#resuelto .opcion").forEach(b=>b.onclick=()=>{R.resue
 (async()=>{
   try{const r=await api("encuesta_ver",{id:Q.get("t"),k:Q.get("k")});$("#hTurno").textContent="Turno "+r.turno;$("#lQueja").href="/quejas.html?sede="+encodeURIComponent(r.sede);
     if(r.ya)return ver("pGracias");
-    $("#hola").textContent="¡Hola"+(r.nombre?" "+r.nombre:"")+"!";if(r.asesor)$("#lAsesor").textContent="3. ¿Cómo te atendió "+r.asesor+"?";ver("pForm")}
+    $("#hola").textContent="¡Hola"+(r.nombre?" "+r.nombre:"")+"!";if(r.asesor)$("#lAsesor").textContent="3. ¿Cómo te atendió "+r.asesor+"?";if(r.cola==="M")$("#bloqueRecepcion").classList.remove("oculto");ver("pForm")}
   catch(e){ver("pError")}
 })();
 $("#bEnviar").onclick=async()=>{

@@ -7,27 +7,52 @@
 <link rel="stylesheet" href="/turnos.css">
 <script src="/config.js"></script>
 <style>
-.caja{max-width:72rem}
+.caja{max-width:68rem;margin-top:1.1rem}
 .barra{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem;justify-content:space-between;margin-bottom:1rem}
-.barra h1{margin:0}
-.quien{color:var(--txt-2);font-size:.95rem}.quien b{color:var(--txt)}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-@media(max-width:820px){.cols{grid-template-columns:1fr}}
-.col h2{display:flex;align-items:center;gap:.5rem}
-.n{font:600 .85rem var(--f);background:var(--navy);color:#fff;border-radius:1rem;padding:.1rem .55rem}
-.t{background:#fff;border-radius:.9rem;box-shadow:var(--sombra);padding:1rem 1.1rem;margin-bottom:.8rem;border-left:.3rem solid var(--c,var(--navy))}
-.t.tarde{border-left-color:var(--rojo);background:#FFF6F5}
-.cab{display:flex;align-items:baseline;gap:.7rem;flex-wrap:wrap}
-.num{font:700 1.6rem/1 var(--fd)}
-.espera{margin-left:auto;font-weight:600;font-size:.9rem;color:var(--txt-2)}.tarde .espera{color:var(--rojo)}
-.dat{font-size:.9rem;margin:.5rem 0;display:grid;gap:.15rem}
-.dat .k{color:var(--txt-2)}
-.notas{white-space:pre-line;font-size:.85rem;background:var(--lienzo);border-radius:.5rem;padding:.5rem .7rem;margin:.4rem 0}
-.acc{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.6rem}
-.acc select{width:auto;padding:.45rem .6rem;font-size:.88rem}
-.vacio{color:var(--txt-2);text-align:center;padding:2rem 1rem;background:#fff;border-radius:.9rem}
-#modal{position:fixed;inset:0;background:rgba(21,43,73,.45);display:grid;place-items:center;padding:1rem;z-index:5}
-#modal .tarjeta{max-width:26rem;width:100%}
+.barra h1{margin:0;font-size:1.4rem}
+.metricas{display:flex;gap:.5rem;flex-wrap:wrap}
+.m{background:#fff;border-radius:.7rem;box-shadow:var(--s2);padding:.5rem .9rem;font-size:.85rem;color:var(--txt-2);display:flex;gap:.5rem;align-items:center}
+.m b{font-family:var(--fd);font-size:1.25rem;color:var(--txt)}
+.m.esp b{color:var(--azul)} .m.aten b{color:var(--teal-osc)}
+.estado-con{display:inline-flex;align-items:center;gap:.45rem;font-size:.82rem;color:var(--teal-osc);font-weight:600}
+.estado-con i{width:.5rem;height:.5rem;border-radius:50%;background:var(--teal);animation:lat 1.6s infinite}
+.estado-con.off{color:var(--txt-3)} .estado-con.off i{background:#C3CEDE;animation:none}
+@keyframes lat{0%,100%{opacity:1}50%{opacity:.3}}
+.cols{display:grid;grid-template-columns:1.25fr 1fr;gap:1rem;align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+.col h2{display:flex;align-items:center;gap:.5rem;font-size:1.05rem;margin:0 0 .7rem}
+.col h2 .n{font:600 .82rem var(--f);background:var(--navy);color:#fff;border-radius:1rem;padding:.08rem .55rem;min-width:1.4rem;text-align:center}
+.t{position:relative;background:#fff;border-radius:.75rem;box-shadow:var(--s2);padding:.7rem .85rem;margin-bottom:.55rem;border-left:.28rem solid var(--c);transition:box-shadow .15s,transform .1s}
+.t:hover{box-shadow:var(--s3)}
+.t.aus{opacity:.72;border-left-style:dashed}
+.t.sel{box-shadow:0 0 0 2px var(--navy),var(--s3)}
+.fila-t{display:flex;align-items:center;gap:.7rem;cursor:pointer}
+.turno-chip{flex:none;min-width:3.1rem;text-align:center;font:700 1.05rem var(--fd);color:#fff;background:var(--c);border-radius:.5rem;padding:.3rem .2rem;line-height:1.1}
+.turno-chip small{display:block;font:600 .6rem var(--f);opacity:.85;letter-spacing:.02em}
+.info{flex:1;min-width:0}
+.info .nom{font-weight:600;font-size:.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info .sub{font-size:.8rem;color:var(--txt-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.espera-chip{flex:none;font-size:.76rem;font-weight:600;color:var(--txt-2);text-align:right;white-space:nowrap}
+.espera-chip.tarde{color:var(--rojo)}
+.badges{display:flex;gap:.3rem;margin-top:.25rem;flex-wrap:wrap}
+.b{font-size:.68rem;font-weight:600;border-radius:1rem;padding:.08rem .5rem;background:#EEF2F8;color:var(--txt-2)}
+.b.aus{background:#FDECEC;color:var(--rojo)}
+.btn-llamar{flex:none;font:600 .85rem var(--f);color:#fff;background:var(--azul);border:0;border-radius:.5rem;padding:.5rem .9rem;cursor:pointer;transition:filter .12s,transform .1s}
+.btn-llamar:hover{filter:brightness(1.1)} .btn-llamar:active{transform:scale(.97)}
+.btn-llamar:disabled{opacity:.6;cursor:wait}
+.btn-llamar.re{background:#fff;color:var(--azul);border:1.5px solid var(--azul)}
+.detalle{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--linea);font-size:.86rem;display:grid;gap:.3rem;animation:subir .2s}
+.detalle .d{display:flex;gap:.5rem}.detalle .k{color:var(--txt-2);min-width:6.5rem;flex:none}
+.notas{white-space:pre-line;background:var(--lienzo);border-radius:.5rem;padding:.45rem .6rem;font-size:.82rem;margin-top:.3rem}
+.acc{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.acc .btn{padding:.42rem .75rem;font-size:.82rem;border-radius:.5rem}
+.acc select{width:auto;padding:.42rem .6rem;font-size:.82rem}
+.vacio{color:var(--txt-2);text-align:center;padding:2.5rem 1rem;background:#fff;border-radius:.9rem}
+.vacio .em{font-size:2rem;display:block;margin-bottom:.4rem}
+.llamado{background:linear-gradient(#fff,#fafcff);border-radius:.75rem;box-shadow:var(--s2);padding:.7rem .85rem;margin-bottom:.55rem;border-left:.28rem solid var(--c)}
+.llamado.atn{border-left-color:var(--teal-osc)}
+.toast{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%) translateY(2rem);background:var(--navy);color:#fff;padding:.7rem 1.2rem;border-radius:.7rem;font-weight:600;box-shadow:var(--s4);opacity:0;transition:.25s;z-index:9;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -36,98 +61,119 @@
   <section class="tarjeta" id="login" style="max-width:30rem;margin:auto">
     <h1>Entrar al panel</h1>
     <label for="lSede">Sede</label><select id="lSede"></select>
-    <label for="lCola">Área que atiendes</label>
-    <select id="lCola"><option value="S">Soporte (S)</option><option value="A">Aspirantes (A)</option><option value="M">Mantenimiento y siniestros (M)</option></select>
     <label for="lPin">PIN de asesor</label><input id="lPin" type="password" inputmode="numeric">
     <p class="error" id="eLogin"></p>
     <button class="btn ancho" id="bEntrar">Entrar</button>
   </section>
-
   <section class="oculto" id="panel">
     <div class="barra">
-      <div><h1 id="pTitulo">—</h1><div class="quien" id="pQuien"></div></div>
-      <div style="display:flex;gap:.5rem;align-items:center"><span class="pill" id="pAct">—</span><button class="btn sec chico" id="bSalir">Cambiar área</button></div>
+      <h1>Conductores en espera</h1>
+      <div style="display:flex;gap:.7rem;align-items:center;flex-wrap:wrap">
+        <div class="metricas">
+          <span class="m esp">En espera <b id="mEsp">0</b></span>
+          <span class="m">En atención <b id="mAtn">0</b></span>
+          <span class="m aten">Atendidos hoy <b id="mHoy">0</b></span>
+        </div>
+        <span class="estado-con off" id="con"><i></i><span>Conectando…</span></span>
+        <button class="btn sec chico" id="bSalir">Salir</button>
+      </div>
     </div>
     <div class="cols">
-      <div class="col"><h2>En espera <span class="n" id="nEsp">0</span></h2><div id="lEsp"></div></div>
+      <div class="col"><h2>Cola del día <span class="n" id="nEsp">0</span></h2><div id="lEsp"></div></div>
       <div class="col"><h2>Llamados y en atención <span class="n" id="nAt">0</span></h2><div id="lAt"></div></div>
     </div>
   </section>
 </main>
-<div id="modal" class="oculto"><div class="tarjeta"><h2 id="mTit">Atención finalizada</h2><p class="sub" id="mTxt"></p>
-  <a class="btn wa ancho" id="mWa" target="_blank" rel="noopener">Enviar encuesta también por WhatsApp</a>
-  <button class="btn sec ancho" id="mCerrar" style="margin-top:.6rem">Cerrar</button></div></div>
+<div class="toast" id="toast"></div>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const COLOR={S:"var(--azul)",A:"var(--mag)",M:"var(--teal-osc)"};
-let S=null,datos=null,desfase=0,timer=null;
+const COLOR={S:"var(--azul)",A:"var(--mag)",M:"var(--teal-osc)"},NOM={S:"Soporte",A:"Aspirante",M:"Mant."};
+let S=null,datos=null,desfase=0,timer=null,expandido=null,ocupado=false;
 $("#lSede").innerHTML=Object.values(SEDES).flat().map(s=>`<option>${s}</option>`).join("");
-try{const g=JSON.parse(localStorage.getItem("asesor")||"null");if(g){$("#lSede").value=g.sede;$("#lCola").value=g.cola}}catch(e){}
-
+try{const g=JSON.parse(localStorage.getItem("asesor")||"null");if(g){$("#lSede").value=g.sede}}catch(e){}
 const min=ms=>Math.max(0,Math.floor(ms/60000));
-const dur=m=>m<60?m+" min":Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")+" min";
+const dur=m=>m<1?"recién":m<60?m+" min":Math.floor(m/60)+"h "+String(m%60).padStart(2,"0");
 const hora=t=>t?new Date(t).toLocaleTimeString("es-VE",{hour:"numeric",minute:"2-digit"}):"";
-
-async function cargar(){
-  // no redibujar mientras el asesor usa "Derivar a..." (se le cerraria la lista)
-  if(document.activeElement&&document.activeElement.matches("select[data-derivar]"))return;
-  try{datos=await api("lista",{pin:S.pin,sede:S.sede});desfase=Date.now()-datos.ahora;pintar();$("#pAct").textContent="Actualizado "+hora(Date.now())}
-  catch(e){if(/PIN|intentos/i.test(e.message)){salir();$("#eLogin").textContent=e.message;}else $("#pAct").textContent="Sin conexión, reintentando…"}
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("on"),2200)}
+function conexion(ok){const c=$("#con");c.className="estado-con"+(ok?"":" off");c.lastElementChild.textContent=ok?"En vivo":"Reintentando…"}
+async function cargar(silencioso){
+  if(ocupado&&!silencioso)return;
+  try{const d=await api("lista",{pin:S.pin,sede:S.sede});desfase=Date.now()-d.ahora;datos=d;conexion(true);pintar();$("#mHoy").textContent=d.atendidos||0}
+  catch(e){if(/PIN|intentos/i.test(e.message)){salir();$("#eLogin").textContent=e.message}else conexion(false)}
 }
-function tarjeta(t){
-  const esperaMin=min(Date.now()-desfase-t.creado),tarde=t.estado==="en espera"&&esperaMin>=30;
-  const fila=(k,v)=>v?`<div><span class="k">${k}:</span> ${esc(v)}</div>`:"";
-  const otras=Object.keys(COLAS).filter(k=>k!==S.cola).map(k=>`<option value="${k}">${COLAS[k]}</option>`).join("");
-  return `<article class="t${tarde?" tarde":""}" style="--c:${COLOR[t.cola]}" data-id="${t.id}">
-    <div class="cab"><span class="num">${esc(t.turno)}</span><b>${esc(t.nombre)}</b>${t.derivado_de?`<span class="pill">Derivado de ${esc(t.derivado_de)}</span>`:""}
-      <span class="espera">${t.estado==="en espera"?"Espera "+dur(esperaMin):t.estado==="llamado"?"Llamado "+hora(t.llamado)+(t.llamadas>1?" ("+t.llamadas+"×)":""):"En atención"}</span></div>
-    <div class="dat">${fila("Cédula",t.cedula)}${fila("Teléfono",t.telefono)}${fila("Placa",t.placa)}${fila("Motivo",t.motivo)}${fila("N° de reporte",t.reporte)}${fila("Detalle",t.detalle)}</div>
+function tarjetaEspera(t){
+  const esperaMin=min(Date.now()-desfase-t.creado),aus=Number(t.ausencias)>0;
+  const sub=[t.cola==="M"&&t.placa?esc(t.placa):"",t.motivo?esc(t.motivo):NOM[t.cola]].filter(Boolean).join(" · ");
+  return `<article class="t${aus?" aus":""}${expandido===t.id?" sel":""}" style="--c:${COLOR[t.cola]}" data-id="${t.id}">
+    <div class="fila-t" data-exp="${t.id}">
+      <div class="turno-chip" style="--c:${COLOR[t.cola]}">${esc(t.turno)}<small>${NOM[t.cola].toUpperCase()}</small></div>
+      <div class="info"><div class="nom">${esc(t.nombre)}</div><div class="sub">${sub}</div>${aus?`<div class="badges"><span class="b aus">No se presentó (${t.ausencias})</span></div>`:""}</div>
+      <div class="espera-chip${esperaMin>=30?" tarde":""}">${dur(esperaMin)}</div>
+      <button class="btn-llamar" data-a="llamar" data-id="${t.id}">Llamar</button>
+    </div>${expandido===t.id?detalle(t,false):""}</article>`;
+}
+function tarjetaLlamado(t){
+  const atn=t.estado==="en atencion";
+  return `<article class="llamado${atn?" atn":""}" style="--c:${COLOR[t.cola]}" data-id="${t.id}">
+    <div class="fila-t" data-exp="${t.id}">
+      <div class="turno-chip" style="--c:${COLOR[t.cola]}">${esc(t.turno)}<small>${NOM[t.cola].toUpperCase()}</small></div>
+      <div class="info"><div class="nom">${esc(t.nombre)}</div><div class="sub">${atn?"En atención":"Llamado "+hora(t.llamado)+(t.llamadas>1?" ("+t.llamadas+"×)":"")}</div></div>
+      ${!atn?`<button class="btn-llamar re" data-a="llamar" data-id="${t.id}">Rellamar</button>`:""}
+    </div>${expandido===t.id?detalle(t,true):""}</article>`;
+}
+function detalle(t,llamado){
+  const d=(k,v)=>v?`<div class="d"><span class="k">${k}</span><span>${esc(v)}</span></div>`:"";
+  const otras=Object.keys(COLAS).filter(k=>k!==t.cola).map(k=>`<option value="${k}">${COLAS[k]}</option>`).join("");
+  return `<div class="detalle">
+    ${d("Cédula",t.cedula)}${d("Teléfono",t.telefono)}${t.cola==="S"?d("ID de conductor",t.id_conductor||"— no indicado —"):""}${d("Placa",t.placa)}${d("Motivo",t.motivo)}${d("N° de reporte",t.reporte)}${d("Detalle",t.detalle)}${t.derivado_de?d("Derivado de",t.derivado_de):""}
     ${t.notas?`<div class="notas">${esc(t.notas)}</div>`:""}
     <div class="acc">
-      <button class="btn azul chico" data-a="llamar">${t.llamado?"Volver a llamar":"Llamar conductor"}</button>
-      ${t.estado!=="en atencion"?`<button class="btn verde chico" data-a="primera">Primera atención realizada</button>`:""}
-      <button class="btn chico" data-a="finalizar">Finalizar</button>
-      <select data-derivar><option value="">Derivar a…</option>${otras}</select>
-      <button class="btn sec chico" data-a="nota">+ Nota</button>
-    </div></article>`;
+      <button class="btn azul" data-a="llamar" data-id="${t.id}">${llamado?"Rellamar":"Llamar conductor"}</button>
+      ${t.estado==="llamado"?`<button class="btn verde" data-a="primera" data-id="${t.id}">Primera atención</button><button class="btn sec" data-a="ausente" data-id="${t.id}">No se presentó</button>`:""}
+      <button class="btn" data-a="finalizar" data-id="${t.id}">Finalizar</button>
+      <select data-derivar data-id="${t.id}"><option value="">Derivar a…</option>${otras}</select>
+      <button class="btn sec" data-a="nota" data-id="${t.id}">+ Nota</button>
+    </div></div>`;
 }
 function pintar(){
-  const a=datos.asesores[S.cola]||{};
-  $("#pQuien").innerHTML=a.nombre?`Atiende: <b>${esc(a.nombre)}</b>${a.puesto?" · Puesto "+esc(a.puesto):""} · Atendidos hoy: ${(datos.atendidos||{})[S.cola]||0}`:`<span style="color:var(--rojo)">El coordinador aún no asignó quién atiende esta área.</span>`;
-  const mios=datos.turnos.filter(t=>t.cola===S.cola);
-  const esp=mios.filter(t=>t.estado==="en espera").sort((x,y)=>x.creado-y.creado),at=mios.filter(t=>t.estado!=="en espera").sort((x,y)=>(y.llamado||0)-(x.llamado||0));
-  $("#nEsp").textContent=esp.length;$("#nAt").textContent=at.length;
-  $("#lEsp").innerHTML=esp.map(tarjeta).join("")||`<div class="vacio">Nadie en espera</div>`;
-  $("#lAt").innerHTML=at.map(tarjeta).join("")||`<div class="vacio">Nadie llamado</div>`;
+  const esp=datos.turnos.filter(t=>t.estado==="en espera"),at=datos.turnos.filter(t=>t.estado!=="en espera");
+  $("#mEsp").textContent=esp.length;$("#mAtn").textContent=at.length;$("#nEsp").textContent=esp.length;$("#nAt").textContent=at.length;
+  $("#lEsp").innerHTML=esp.map(tarjetaEspera).join("")||`<div class="vacio"><span class="em">☕</span>Nadie en espera por ahora</div>`;
+  $("#lAt").innerHTML=at.map(tarjetaLlamado).join("")||`<div class="vacio"><span class="em">📣</span>Aún no has llamado a nadie</div>`;
 }
+document.addEventListener("click",e=>{
+  const exp=e.target.closest("[data-exp]");
+  if(exp&&!e.target.closest("[data-a],[data-derivar],.btn-llamar")){const id=exp.dataset.exp;expandido=expandido===id?null:id;pintar();return}
+});
 document.addEventListener("click",async e=>{
-  const b=e.target.closest("[data-a]");if(!b)return;const id=b.closest("[data-id]").dataset.id,acc=b.dataset.a,extra={};
-  if(acc==="nota"){const t=prompt("Nota para este conductor (ej. también tiene un problema con la app):");if(!t)return;extra.texto=t;extra.autor=(datos.asesores[S.cola]||{}).nombre||COLAS[S.cola]}
-  if(acc==="finalizar"&&!confirm("¿Finalizar la atención de este conductor?"))return;
-  b.disabled=true;try{const r=await api(acc,Object.assign({pin:S.pin,sede:S.sede,id},extra));if(acc==="finalizar")avisoFinal(r.turno);await cargar()}catch(err){alert(err.message);b.disabled=false}
+  const b=e.target.closest("[data-a]");if(!b)return;e.stopPropagation();
+  const id=b.dataset.id,acc=b.dataset.a,extra={};
+  if(acc==="nota"){const t=prompt("Nota para este conductor:");if(!t)return;extra.texto=t;extra.autor="Asesor"}
+  if(acc==="finalizar"&&!confirm("¿Finalizar la atención?"))return;
+  const prev=b.textContent;b.disabled=true;if(acc==="llamar")b.textContent="Llamando…";ocupado=true;
+  if(acc==="llamar"){const t=datos.turnos.find(x=>x.id===id);if(t)toast("📣 Llamando a "+String(t.nombre).split(" ")[0]+" · "+t.turno)}
+  try{const r=await api(acc,Object.assign({pin:S.pin,sede:S.sede,id},extra));
+    if(acc==="finalizar"&&r.turno)toast("✓ "+r.turno.turno+" finalizado");
+    ocupado=false;await cargar(true)}
+  catch(err){ocupado=false;b.disabled=false;b.textContent=prev;toast("⚠ "+err.message)}
 });
 document.addEventListener("change",async e=>{
-  const s=e.target.closest("[data-derivar]");if(!s||!s.value)return;const id=s.closest("[data-id]").dataset.id;
-  if(!confirm("¿Derivar a "+COLAS[s.value]+"?")){s.value="";return}
-  try{await api("derivar",{pin:S.pin,sede:S.sede,id,cola:s.value});await cargar()}catch(err){alert(err.message)}
+  const s=e.target.closest("[data-derivar]");if(!s||!s.value)return;const id=s.dataset.id;
+  const motivo=prompt("¿Por qué lo derivas a "+COLAS[s.value]+"? (se lo pasamos al otro asesor)");
+  if(motivo===null){s.value="";return}
+  ocupado=true;try{await api("derivar",{pin:S.pin,sede:S.sede,id,cola:s.value,motivo});toast("→ Derivado a "+COLAS[s.value]);ocupado=false;await cargar(true)}catch(err){ocupado=false;toast("⚠ "+err.message)}
 });
 $("#bEntrar").onclick=async()=>{
-  S={sede:$("#lSede").value,cola:$("#lCola").value,pin:$("#lPin").value.trim()};$("#eLogin").textContent="";
-  try{localStorage.setItem("asesor",JSON.stringify({sede:S.sede,cola:S.cola}))}catch(e){}
-  $("#hSede").textContent=S.sede;$("#pTitulo").textContent=COLAS[S.cola];$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");
-  await cargar();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)cargar()},10000);
+  S={sede:$("#lSede").value,pin:$("#lPin").value.trim()};$("#eLogin").textContent="";
+  try{localStorage.setItem("asesor",JSON.stringify({sede:S.sede}))}catch(e){}
+  $("#hSede").textContent=S.sede;$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");
+  await cargar();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)cargar(true)},5000);
 };
-function avisoFinal(t){
-  const tel=String(t.telefono||"").replace(/\D/g,"").replace(/^0/,"58"),link=location.origin+"/encuesta.html?t="+t.id+"&k="+t.token;
-  const m=t.cola==="M"&&t.placa;$("#mTxt").textContent=m?"La encuesta le llegará por correo automáticamente cuando el vehículo "+t.placa+" salga del taller.":"La encuesta ya se envió al correo del conductor.";
-  $("#mWa").classList.toggle("oculto",!!m||tel.length<11);
-  $("#mWa").href="https://wa.me/"+tel+"?text="+encodeURIComponent(`Hola ${String(t.nombre).split(" ")[0]}, gracias por visitarnos en Ridery. ¿Nos ayudas calificando tu atención (turno ${t.turno})? ${link}`);
-  $("#modal").classList.remove("oculto")}
-$("#mCerrar").onclick=()=>$("#modal").classList.add("oculto");
 function salir(){clearInterval(timer);$("#panel").classList.add("oculto");$("#login").classList.remove("oculto")}
 $("#bSalir").onclick=salir;
 $("#lPin").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bEntrar").click()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S)cargar(true)});
 </script>
 </body>
 </html>

@@ -118,7 +118,8 @@ async function cargar(){
       kpi("Listo hasta retirado",dur(r.retiro.prom),r.retiro.n?r.retiro.n+" entregados":"Aún sin entregas","var(--mag)")+
       kpi(`Casos de más de ${L/60} h`,r.alertas.length,"Espera en sala sin atender",r.alertas.length?"var(--rojo)":"var(--teal-osc)")+
       kpi("Satisfacción",E.calificacion==null?"—":"★ "+E.calificacion+" / 5",`${E.respuestas} respuestas · ${E.enviadas?Math.round(E.respuestas/E.enviadas*100):0}% respondió`,"#F5A623")+
-      kpi("Casos resueltos",E.resuelto_pct==null?"—":E.resuelto_pct+"%",E.calificacion_asesor==null?"Según la encuesta":"Asesores: ★ "+E.calificacion_asesor+" / 5","var(--teal-osc)");
+      kpi("Casos resueltos",E.resuelto_pct==null?"—":E.resuelto_pct+"%",E.calificacion_asesor==null?"Según la encuesta":"Asesores: ★ "+E.calificacion_asesor+" / 5","var(--teal-osc)")+
+      (E.calificacion_recepcion!=null?kpi("Recepción del vehículo",E.calificacion_recepcion==null?"—":"★ "+E.calificacion_recepcion+" / 5","Satisfacción al recibir el vehículo","var(--azul)"):"");
     vbars($("#gHoras"),r.por_hora.map((n,h)=>({h,n})).filter(x=>x.h>=6&&x.h<21),x=>(x.h%12||12)+(x.h<12?"am":"pm"),x=>x.n,null,true);
     vbars($("#gDias"),r.por_dia,x=>x.dia.slice(8)+"/"+x.dia.slice(5,7),x=>x.n,x=>x.t1==null?"—":x.t1+"m");
     const mx=Math.max(1,...r.motivos.map(m=>m.n));

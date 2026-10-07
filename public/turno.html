@@ -5,6 +5,7 @@
 <title>Ridery · Solicitar atención</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎫</text></svg>">
 <link rel="stylesheet" href="/turnos.css">
+<style></style>
 <style>.barra-prog{height:4px;background:var(--linea)}.barra-prog i{display:block;height:100%;width:25%;background:linear-gradient(90deg,var(--teal),var(--teal-osc));transition:width .4s cubic-bezier(.2,.8,.2,1);border-radius:0 2px 2px 0}</style>
 <script src="/config.js"></script>
 </head>
@@ -54,6 +55,7 @@
       <a class="btn wa ancho" id="bWa" target="_blank" rel="noopener">Escribir a Soporte por WhatsApp</a>
     </div>
     <div id="sSiBox" class="oculto">
+      <label for="idc">ID de conductor</label><input id="idc" placeholder="Ej. 12345" autocomplete="off">
       <label for="reporte">Número de reporte</label><input id="reporte" placeholder="Ej. 458921">
       <label for="detS">¿Por qué vienes a la sede?</label><textarea id="detS" placeholder="Cuéntanos brevemente"></textarea>
       <p class="error" id="eS"></p>
@@ -106,7 +108,8 @@ const PASO={pSede:12,pDatos:30,pArea:55,pS:80,pA:80,pM:80,pTicket:100};
 function ver(id){document.querySelectorAll("main>section").forEach(s=>s.classList.add("oculto"));$("#"+id).classList.remove("oculto");scrollTo(0,0);if($("#prog"))$("#prog").style.width=(PASO[id]||25)+"%"}
 function datos(){return{cedula:$("#cedula").value.trim(),nombre:$("#nombre").value.trim(),telefono:$("#telefono").value.trim(),correo:$("#correo").value.trim()}}
 const hoy=()=>new Date().toLocaleDateString("en-CA");
-function mostrarTicket(t){$("#lQueja").href="/quejas.html?sede="+encodeURIComponent(t.sede);$("#tNum").textContent=t.turno;$("#tCola").textContent=t.colaNombre;$("#tCola").style.setProperty("--c",COLOR[t.cola]);ver("pTicket")}
+function mostrarTicket(t){$("#lQueja").href="/quejas.html?sede="+encodeURIComponent(t.sede);$("#tNum").textContent=t.turno;$("#tCola").textContent=t.colaNombre;$("#tCola").style.setProperty("--c",COLOR[t.cola]);
+ver("pTicket")}
 
 /* Sede */
 function iniciarSede(){$("#nomSede").textContent=sede;
@@ -136,7 +139,8 @@ $("#sNo").onclick=()=>{$("#sNo").setAttribute("aria-pressed",true);$("#sSi").set
 /* Enviar */
 document.querySelectorAll("[data-enviar]").forEach(b=>b.onclick=async()=>{
   const c=b.dataset.enviar,err=$("#e"+c),d=Object.assign({sede,cola:c},datos());
-  if(c==="S"){d.reporte=$("#reporte").value.trim();d.detalle=$("#detS").value.trim();d.motivo="Soporte de la app";
+  if(c==="S"){d.reporte=$("#reporte").value.trim();d.id_conductor=$("#idc").value.trim();d.detalle=$("#detS").value.trim();d.motivo="Soporte de la app";
+    if(!d.id_conductor)return err.textContent="Escribe tu ID de conductor.";
     if(!d.reporte)return err.textContent="Escribe tu número de reporte.";if(d.detalle.length<5)return err.textContent="Cuéntanos por qué vienes.";}
   if(c==="A"){d.motivo=$("#motA").value;d.detalle=$("#detA").value.trim();if(!d.motivo)return err.textContent="Elige a qué vienes.";
     if(d.motivo==="Otro"&&d.detalle.length<5)return err.textContent="Cuéntanos a qué vienes.";}
