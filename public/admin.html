@@ -35,6 +35,7 @@
 
   <div class="oculto" id="panel">
     <section class="tarjeta no-imp">
+      <div class="aviso oculto" id="avisoPin" style="margin:0 0 1rem">🔒 <b>Tus PIN son fáciles de adivinar.</b> Cámbialos en la pestaña <b>Config</b> de la hoja por números de al menos 6 dígitos que no sean repetidos ni consecutivos.</div>
       <h1>¿Quién atiende cada área hoy?</h1>
       <p class="sub">El nombre aparecerá en la TV cuando llamen un turno (ej. "M-05 → Pedro").</p>
       <div id="areas"></div>
@@ -62,7 +63,7 @@ const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 const COLOR={S:"var(--azul)",A:"var(--mag)",M:"var(--teal-osc)"};let S=null;
 $("#lSede").innerHTML=Object.values(SEDES).flat().map(s=>`<option>${s}</option>`).join("");
 try{const g=localStorage.getItem("admin_sede");if(g)$("#lSede").value=g}catch(e){}
-function pintar(r){
+function pintar(r){$("#avisoPin").classList.toggle("oculto",!r.pin_debil);
   $("#areas").innerHTML=Object.keys(COLAS).map(k=>{const a=r.asesores[k]||{};return `<div class="area" style="--c:${COLOR[k]}"><span class="letra">${k}</span>
     <div><label for="n${k}">${COLAS[k]}: nombre</label><input id="n${k}" value="${esc(a.nombre)}" placeholder="Ej. Pedro"></div>
     <div><label for="p${k}">Puesto</label><input id="p${k}" value="${esc(a.puesto)}" placeholder="Ej. 2"></div></div>`}).join("");

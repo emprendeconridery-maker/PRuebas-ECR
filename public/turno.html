@@ -147,7 +147,7 @@ document.querySelectorAll("[data-enviar]").forEach(b=>b.onclick=async()=>{
   if(c==="M"){d.placa=$("#placa").value.trim().toUpperCase().replace(/[^A-Z0-9]/g,"");d.motivo=$("#motM").value;d.detalle=$("#detM").value.trim();
     if(d.placa.length<5)return err.textContent="Escribe la placa del vehículo.";if(!d.motivo)return err.textContent="Elige el tipo.";if(d.detalle.length<5)return err.textContent="Cuéntanos por qué vienes.";}
   err.textContent="";b.disabled=true;b.textContent="Enviando…";
-  try{const r=await api("crear",d);const t={turno:r.turno,cola:c,colaNombre:r.cola,sede,fecha:hoy()};
+  try{const r=await api("crear",d);const t={turno:r.turno,cola:c,colaNombre:r.cola,sede,fecha:hoy()};if(r.repetido)setTimeout(()=>{const s=document.querySelector("#pTicket .sub");if(s)s.textContent="Ya tenías un turno activo hoy. Te mostramos el mismo."},0);
     try{localStorage.setItem("ticket",JSON.stringify(t))}catch(e){}mostrarTicket(t)}
   catch(e){err.textContent="No pudimos registrar tu solicitud. Intenta de nuevo. ("+e.message+")"}
   finally{b.disabled=false;b.textContent="Solicitar atención"}});

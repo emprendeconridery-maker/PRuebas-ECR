@@ -154,6 +154,7 @@ document.addEventListener("click",async e=>{
   const prev=b.textContent;b.disabled=true;if(acc==="llamar")b.textContent="Llamando…";ocupado=true;
   if(acc==="llamar"){const t=datos.turnos.find(x=>x.id===id);if(t)toast("📣 Llamando a "+String(t.nombre).split(" ")[0]+" · "+t.turno)}
   try{const r=await api(acc,Object.assign({pin:S.pin,sede:S.sede,id},extra));
+    if(acc==="llamar"&&r.turno)avisarTV(r.turno);
     if(acc==="finalizar"&&r.turno)toast("✓ "+r.turno.turno+" finalizado");
     ocupado=false;await cargar(true)}
   catch(err){ocupado=false;b.disabled=false;b.textContent=prev;toast("⚠ "+err.message)}
@@ -170,6 +171,12 @@ $("#bEntrar").onclick=async()=>{
   $("#hSede").textContent=S.sede;$("#login").classList.add("oculto");$("#panel").classList.remove("oculto");
   await cargar();clearInterval(timer);timer=setInterval(()=>{if(!document.hidden)cargar(true)},5000);
 };
+function nombreCorto(n){const p=String(n||"").trim().split(/\s+/);return p.length>1?p[0]+" "+p[p.length>=4?2:1].charAt(0)+".":p[0]||""}
+function avisarTV(t){
+  const msg={tipo:"llamar",turno:{id:t.id,turno:t.turno,cola:t.cola,sede:t.sede,nombre:nombreCorto(t.nombre),asesor:t.asesor,puesto:t.puesto,llamadas:t.llamadas},t:Date.now()};
+  try{new BroadcastChannel("ridery-turnos").postMessage(msg)}catch(e){}
+  try{localStorage.setItem("ridery_llamar",JSON.stringify(msg))}catch(e){}
+}
 function salir(){clearInterval(timer);$("#panel").classList.add("oculto");$("#login").classList.remove("oculto")}
 $("#bSalir").onclick=salir;
 $("#lPin").addEventListener("keydown",e=>{if(e.key==="Enter")$("#bEntrar").click()});

@@ -55,7 +55,7 @@ footer{text-align:center;color:var(--txt-2);font-size:.82rem;padding:1rem 1rem 2
     <div class="marca"><div class="logo"><img src="/logo.png" alt="Ridery"></div><div class="reloj"><b id="hora">—</b><span id="fecha"></span></div></div>
     <h1 id="saludo">Bienvenido</h1>
     <p>Portal de atención de Emprende con Ridery. Elige a dónde quieres ir.</p>
-    <div class="sede-sel"><label for="sede">Sede</label><select id="sede"></select><span class="estado oculto" id="estado"><i></i><span id="eTxt"></span></span></div>
+    <div class="sede-sel"><label for="sede">Sede</label><select id="sede"></select></div>
   </div>
 </section>
 
@@ -102,15 +102,7 @@ function reloj(){const d=new Date(),h=d.getHours();
   const f=d.toLocaleDateString("es-VE",{weekday:"long",day:"numeric",month:"long"});$("#fecha").textContent=f.charAt(0).toUpperCase()+f.slice(1);
   $("#saludo").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+", bienvenido"}
 reloj();setInterval(reloj,30000);
-async function estado(){
-  if(!window.TURNOS_API||!/^https?:\/\//.test(TURNOS_API))return;
-  const sede=$("#sede").value;
-  try{const r=await fetch(TURNOS_API+"?accion=tv&sede="+encodeURIComponent(sede==="*"?"":sede));const d=await r.json();if(!d.ok)return;
-    const e=d.espera||{},t=(e.S||0)+(e.A||0)+(e.M||0);
-    $("#eTxt").textContent=(sede==="*"?"Todas las sedes · ":"")+(t?`${t} en espera ahora · S ${e.S||0} · A ${e.A||0} · M ${e.M||0}`:"Sin conductores en espera");$("#estado").classList.remove("oculto")}catch(e){}
-}
-$("#sede").onchange=()=>{try{localStorage.setItem("portal_sede",$("#sede").value)}catch(e){};$("#estado").classList.add("oculto");estado()};
-estado();setInterval(()=>{if(!document.hidden)estado()},60000);
+$("#sede").onchange=()=>{try{localStorage.setItem("portal_sede",$("#sede").value)}catch(e){}};
 document.querySelectorAll("[data-ir]").forEach(a=>a.onclick=()=>{const s=$("#sede").value;if(s==="*"){$("#sede").focus();$("#sede").style.boxShadow="0 0 0 3px rgba(227,21,116,.3)";setTimeout(()=>$("#sede").style.boxShadow="",1500);return}location.href="/"+a.dataset.ir+".html?sede="+encodeURIComponent(s)});
 $("#bTV").onclick=()=>{let c="";try{c=localStorage.getItem("clave_tv")||""}catch(e){}$("#clave").value=c;$("#modal").classList.remove("oculto");$("#clave").focus()};
 $("#bCerrar").onclick=()=>$("#modal").classList.add("oculto");
